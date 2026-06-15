@@ -9,23 +9,30 @@ import {
 } from 'lucide-react';
 import { api } from '@/utils/api';
 import confetti from 'canvas-confetti';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 
 const GOLD = '#D4A44B';
 
-const fadeInUp = {
+const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.8,
+      ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+    },
+  },
 };
 
-const staggerContainer = {
+const staggerContainer: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.15
-    }
-  }
+      staggerChildren: 0.15,
+    },
+  },
 };
 
 export default function Home() {
@@ -64,6 +71,9 @@ export default function Home() {
   // Mouse parallax state for Hero
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
+  // Scroll progress bar
+  const [scrollProgress, setScrollProgress] = useState(0);
+
   // Fetch dynamic database CMS contents
   useEffect(() => {
     const fetchCMSData = async () => {
@@ -87,6 +97,18 @@ export default function Home() {
       }
     };
     fetchCMSData();
+  }, []);
+
+  // Scroll progress tracker
+  useEffect(() => {
+    const handleScrollProgress = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? scrollTop / docHeight : 0;
+      setScrollProgress(progress);
+    };
+    window.addEventListener('scroll', handleScrollProgress, { passive: true });
+    return () => window.removeEventListener('scroll', handleScrollProgress);
   }, []);
 
   // Auto-advance testimonials
@@ -231,7 +253,10 @@ export default function Home() {
     <div className="relative min-h-screen bg-[var(--background)] text-[var(--foreground)] overflow-hidden transition-colors duration-500">
       
       {/* Scroll Progress Indicator Bar */}
-      <div className="fixed top-0 left-0 right-0 h-1 bg-[#D4A44B] origin-left z-[9999]" style={{ transformScaleX: 'none' }} />
+      <div
+        className="fixed top-0 left-0 right-0 h-1 bg-[#D4A44B] origin-left z-[9999]"
+        style={{ transform: `scaleX(${scrollProgress})` }}
+      />
 
       {/* ============================================
           HERO SECTION - Fullscreen Cinematic Video
