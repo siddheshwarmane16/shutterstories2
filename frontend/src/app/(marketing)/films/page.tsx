@@ -57,7 +57,7 @@ export default function FilmsPage() {
   const displayFilms = films.length > 0 ? films : fallbackFilms;
 
   return (
-    <div className="relative min-h-screen py-24 bg-[#F7F2EA] text-[#1F1F1F]">
+    <div className="relative min-h-screen py-32 bg-[var(--background)] text-[var(--foreground)] transition-colors duration-500">
       {/* Fullscreen Video Background */}
       <div className="absolute inset-0 z-0">
         <video
@@ -68,7 +68,7 @@ export default function FilmsPage() {
           className="h-full w-full object-cover opacity-5"
           src="https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-piano-player-in-a-suit-40078-large.mp4"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#F7F2EA] via-[#F7F2EA]/95 to-[#F7F2EA] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[var(--background)] via-[var(--background)]/95 to-[var(--background)] pointer-events-none" />
       </div>
 
       <div className="mx-auto max-w-7xl px-6 lg:px-8 relative z-10">
@@ -76,10 +76,10 @@ export default function FilmsPage() {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-28">
           <span className="text-[10px] uppercase tracking-[0.4em] text-[#C8A96B] font-bold">CINEMATOGRAPHY ARCHIVE</span>
-          <h1 className="font-editorial text-4xl sm:text-7xl font-bold tracking-tight uppercase mt-3 mb-8 text-[#1F1F1F]">
+          <h1 className="font-editorial text-4xl sm:text-7xl font-bold tracking-tight uppercase mt-3 mb-8 text-[var(--foreground)]">
             The Films
           </h1>
-          <p className="text-[#5C4435] text-xs sm:text-sm tracking-widest leading-relaxed font-light">
+          <p className="text-[var(--secondary-text)] text-xs sm:text-sm tracking-widest leading-relaxed font-light">
             Experience our story-driven wedding documentaries and trailers. Shot on cinema-grade gear and color-graded by editorial visual directors.
           </p>
         </div>
@@ -94,7 +94,7 @@ export default function FilmsPage() {
             {displayFilms.map((film, idx) => (
               <div
                 key={film.id || idx}
-                className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center border-b border-[#5C4435]/10 pb-24 last:border-b-0 last:pb-0"
+                className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center border-b border-[var(--border-color)] pb-24 last:border-b-0 last:pb-0"
               >
                 {/* Visual Card with Autoplay on Hover */}
                 <div
@@ -107,7 +107,7 @@ export default function FilmsPage() {
                     if (video) video.pause();
                   }}
                   onClick={() => setActiveVideoUrl(film.mediaUrl)}
-                  className="lg:col-span-7 aspect-video relative group cursor-pointer overflow-hidden border border-[#5C4435]/15 rounded-sm bg-neutral-900 shadow-2xl"
+                  className="lg:col-span-7 aspect-video relative group cursor-pointer overflow-hidden border border-[var(--border-color)] rounded-sm bg-neutral-900 shadow-2xl"
                 >
                   <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors z-10 duration-500" />
                   
@@ -129,13 +129,13 @@ export default function FilmsPage() {
 
                   {/* Play Icon */}
                   <div className="absolute inset-0 flex items-center justify-center z-20">
-                    <span className="h-16 w-16 bg-[#F7F2EA]/90 border border-[#C8A96B]/30 rounded-full flex items-center justify-center text-[#C8A96B] group-hover:bg-[#C8A96B] group-hover:text-[#F7F2EA] transition-all group-hover:scale-110 shadow-2xl">
+                    <span className="h-16 w-16 bg-[var(--background)]/90 border border-[#C8A96B]/30 rounded-full flex items-center justify-center text-[#C8A96B] group-hover:bg-[#C8A96B] group-hover:text-black transition-all group-hover:scale-110 shadow-2xl">
                       <Play className="h-5 w-5 fill-current ml-0.5" />
                     </span>
                   </div>
 
                   {/* Soundwave Indicator */}
-                  <div className="absolute bottom-4 right-4 z-20 bg-[#F7F2EA]/90 backdrop-blur-md px-3.5 py-2 border border-[#C8A96B]/25 rounded-sm flex items-center gap-2">
+                  <div className="absolute bottom-4 right-4 z-20 bg-[var(--background)]/90 backdrop-blur-md px-3.5 py-2 border border-[#C8A96B]/25 rounded-sm flex items-center gap-2">
                     <div className="flex items-end gap-0.5 h-6">
                       <span className="soundwave-bar" style={{ animationDelay: '0.1s' }} />
                       <span className="soundwave-bar" style={{ animationDelay: '0.3s' }} />
@@ -143,17 +143,17 @@ export default function FilmsPage() {
                       <span className="soundwave-bar" style={{ animationDelay: '0.2s' }} />
                       <span className="soundwave-bar" style={{ animationDelay: '0.4s' }} />
                     </div>
-                    <span className="text-[9px] uppercase tracking-[0.25em] font-semibold text-[#1F1F1F]">Preview Sound Active</span>
+                    <span className="text-[9px] uppercase tracking-[0.25em] font-semibold text-[var(--foreground)]">Preview Sound Active</span>
                   </div>
                 </div>
 
                 {/* Film Narrative Copy */}
                 <div className="lg:col-span-5 flex flex-col gap-6">
-                  <div className="flex flex-wrap items-center gap-4 text-[#5C4435]/65 text-[10px] uppercase tracking-[0.2em] font-semibold">
-                    <span className="flex items-center gap-1.5 bg-[#EFE7DB]/60 border border-[#5C4435]/15 px-2.5 py-1 rounded-sm">
+                  <div className="flex flex-wrap items-center gap-4 text-[var(--secondary-text)]/65 text-[10px] uppercase tracking-[0.2em] font-semibold">
+                    <span className="flex items-center gap-1.5 bg-[var(--beige)]/60 border border-[var(--border-color)] px-2.5 py-1 rounded-sm">
                       <Clock className="h-3.5 w-3.5 text-[#C8A96B]" /> {film.duration || 'Teaser Film'}
                     </span>
-                    <span className="flex items-center gap-1.5 bg-[#EFE7DB]/60 border border-[#5C4435]/15 px-2.5 py-1 rounded-sm">
+                    <span className="flex items-center gap-1.5 bg-[var(--beige)]/60 border border-[var(--border-color)] px-2.5 py-1 rounded-sm">
                       <MapPin className="h-3.5 w-3.5 text-[#C8A96B]" /> {film.location || 'Destination'}
                     </span>
                     <span className="text-[#C8A96B] border border-[#C8A96B]/25 px-2.5 py-1 rounded-sm">
@@ -163,18 +163,18 @@ export default function FilmsPage() {
                   
                   <h3
                     onClick={() => setActiveVideoUrl(film.mediaUrl)}
-                    className="font-editorial text-2xl sm:text-4xl font-bold uppercase text-[#1F1F1F] hover:text-[#C8A96B] transition-colors cursor-pointer leading-tight"
+                    className="font-editorial text-2xl sm:text-4xl font-bold uppercase text-[var(--foreground)] hover:text-[#C8A96B] transition-colors cursor-pointer leading-tight"
                   >
                     {film.title}
                   </h3>
                   
-                  <p className="text-[#5C4435] text-xs sm:text-sm leading-relaxed font-light tracking-wide">
+                  <p className="text-[var(--secondary-text)] text-xs sm:text-sm leading-relaxed font-light tracking-wide">
                     {film.description}
                   </p>
 
                   <button
                     onClick={() => setActiveVideoUrl(film.mediaUrl)}
-                    className="inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.2em] text-[#C8A96B] hover:text-[#1F1F1F] transition-all mt-4 font-semibold group self-start"
+                    className="inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.2em] text-[#C8A96B] hover:text-[var(--foreground)] transition-all mt-4 font-semibold group self-start"
                   >
                     Watch Cinematic Film
                     <ArrowRight className="h-4.5 w-4.5 transition-transform group-hover:translate-x-1" />
@@ -194,7 +194,7 @@ export default function FilmsPage() {
           >
             <button
               onClick={() => setActiveVideoUrl(null)}
-              className="absolute top-6 right-6 h-12 w-12 bg-[#F7F2EA] text-[#1F1F1F] rounded-full flex items-center justify-center hover:bg-[#C8A96B] hover:text-[#F7F2EA] transition-all font-bold text-xl shadow-2xl"
+              className="absolute top-6 right-6 h-12 w-12 bg-[var(--background)] text-[var(--foreground)] rounded-full flex items-center justify-center hover:bg-[#C8A96B] hover:text-black transition-all font-bold text-xl shadow-2xl"
               title="Close Player"
             >
               &times;

@@ -5,6 +5,7 @@ import CustomCursor from '@/components/CustomCursor';
 import LenisProvider from '@/components/LenisProvider';
 import FloatingWhatsApp from '@/components/FloatingWhatsApp';
 import MouseGlow from '@/components/MouseGlow';
+import AIAssistant from '@/components/AIAssistant';
 
 export default function MarketingLayout({
   children,
@@ -13,13 +14,14 @@ export default function MarketingLayout({
 }) {
   return (
     <LenisProvider>
-      <div className="relative flex min-h-screen flex-col bg-[#F7F2EA] text-[#1A1A1A] selection:bg-[#C8A96B] selection:text-[#F7F2EA]">
+      <div className="relative flex min-h-screen flex-col bg-[var(--background)] text-[var(--foreground)] selection:bg-[#C8A96B] selection:text-[#F7F2EA] transition-colors duration-500">
         <CustomCursor />
         <MouseGlow />
         <Header />
-        <main className="flex-1 pt-[76px] xl:pt-[84px]">{children}</main>
+        <main className="flex-1">{children}</main>
         <Footer />
         <FloatingWhatsApp />
+        <AIAssistant />
       </div>
     </LenisProvider>
   );

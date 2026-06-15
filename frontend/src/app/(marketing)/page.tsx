@@ -1,751 +1,989 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Camera, 
-  ArrowRight, 
-  Play, 
-  Star, 
-  Sparkles, 
-  Instagram, 
-  Send, 
-  Check, 
-  Award, 
-  Clock, 
-  MapPin, 
-  Users, 
-  Globe, 
-  Calendar,
-  Layers,
-  Heart,
-  Volume2,
-  VolumeX,
-  Film
+import {
+  Camera, Play, Volume2, VolumeX, Instagram, Youtube, Facebook,
+  ArrowRight, Star, Check, Award, Clock, MapPin, Users, Globe,
+  Send, ChevronLeft, ChevronRight, Sparkles, Film, Image as ImageIcon, Heart, ZoomIn, X, Info
 } from 'lucide-react';
 import { api } from '@/utils/api';
-import ThreeBackground from '@/components/ThreeBackground';
 import confetti from 'canvas-confetti';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const GOLD = '#D4A44B';
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15
+    }
+  }
+};
 
 export default function Home() {
-  const [portfolio, setPortfolio] = useState<any[]>([]);
-  const [testimonials, setTestimonials] = useState<any[]>([]);
-  const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
+  const [isMuted, setIsMuted] = useState(true);
+  const [activeVideo, setActiveVideo] = useState<string | null>(null);
+  const [testimonialIdx, setTestimonialIdx] = useState(0);
   
-  // Video Reel Trailer State
-  const [isPlayingReel, setIsPlayingReel] = useState(false);
-
-  // Form Fields
+  // Booking Form state
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [date, setDate] = useState('');
+  const [eventType, setEventType] = useState('Luxury Wedding Stories');
   const [venue, setVenue] = useState('');
-  const [packageType, setPackageType] = useState('Luxury Wedding Stories');
+  const [packageType, setPackageType] = useState('Premium Wedding Package');
   const [message, setMessage] = useState('');
-  
-  // Form Status
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingError, setBookingError] = useState('');
   const [bookingSubmitting, setBookingSubmitting] = useState(false);
+  
+  // Stats counter state
+  const [counts, setCounts] = useState([0, 0, 0, 0]);
+  const statsRef = useRef<HTMLDivElement>(null);
+  const heroVideoRef = useRef<HTMLVideoElement>(null);
 
-  // Scroll to booking form
-  const scrollToBooking = () => {
-    const el = document.getElementById('booking-section');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  // Dynamic CMS State
+  const [portfolioItems, setPortfolioItems] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>('');
+  const [packages, setPackages] = useState<any[]>([]);
+  const [films, setFilms] = useState<any[]>([]);
+  const [loadingPortfolio, setLoadingPortfolio] = useState(true);
 
+  // Lightbox gallery
+  const [lightboxItem, setLightboxItem] = useState<any | null>(null);
+
+  // Mouse parallax state for Hero
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  // Fetch dynamic database CMS contents
   useEffect(() => {
-    const loadData = async () => {
+    const fetchCMSData = async () => {
       try {
         const portRes = await api.getPortfolio();
-        setPortfolio(portRes);
+        setPortfolioItems(portRes);
+        
+        // Filter videos for the Netflix-style cinema gallery
+        const videoFilms = portRes.filter((item: any) => item.mediaType === 'VIDEO');
+        setFilms(videoFilms);
 
-        const testRes = await api.getTestimonials();
-        setTestimonials(testRes);
+        const catRes = await api.getCategories();
+        setCategories(catRes);
+
+        const packRes = await api.getPackages();
+        setPackages(packRes);
       } catch (err) {
-        console.error('Failed to load home page content:', err);
+        console.error('Failed to pre-fetch homepage CMS details:', err);
+      } finally {
+        setLoadingPortfolio(false);
       }
     };
-    loadData();
+    fetchCMSData();
   }, []);
+
+  // Auto-advance testimonials
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTestimonialIdx((i) => (i + 1) % 3);
+    }, 5500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Animated count-up observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          const targets = [1000, 500, 150, 50];
+          targets.forEach((target, i) => {
+            let start = 0;
+            const step = target / 60;
+            const timer = setInterval(() => {
+              start += step;
+              setCounts((prev) => {
+                const next = [...prev];
+                next[i] = Math.min(Math.floor(start), target);
+                return next;
+              });
+              if (start >= target) clearInterval(timer);
+            }, 18);
+          });
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+    if (statsRef.current) observer.observe(statsRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // Mouse movement parallax hook
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const { clientX, clientY } = e;
+      const x = (clientX - window.innerWidth / 2) * 0.015;
+      const y = (clientY - window.innerHeight / 2) * 0.015;
+      setMousePos({ x, y });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Sync mute state to video
+  useEffect(() => {
+    if (heroVideoRef.current) {
+      heroVideoRef.current.muted = isMuted;
+    }
+  }, [isMuted]);
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !phone.trim() || !date || !message.trim() || !venue.trim()) {
-      setBookingError('Please fill in all booking credentials.');
+    if (!name || !phone || !date || !venue || !message) {
+      setBookingError('Please fill in all fields.');
       return;
     }
-
     setBookingSubmitting(true);
     setBookingError('');
-
     try {
+      // Find package ID matching select input if exists, or default to Gold
+      const matchedPkg = packages.find((p) => p.name === 'Gold' || p.name === 'Premium') || packages[0];
+      const packageId = matchedPkg?.id || '';
+
       await api.createBooking({
-        eventType: packageType,
+        eventType,
         date,
         location: venue,
-        requirements: `Package: ${packageType}. Message: ${message}`,
+        packageId,
+        requirements: `Selected Package: ${packageType}. ${message}`,
         contactName: name,
-        contactEmail: `${name.toLowerCase().replace(/\s+/g, '')}@shutterstories.com`, // Auto-generated email fallback
+        contactEmail: `${name.toLowerCase().replace(/\s+/g, '')}@guest.com`,
         contactPhone: phone,
       });
 
-      confetti({
-        particleCount: 150,
-        spread: 80,
-        origin: { y: 0.8 },
-        colors: ['#C8A96B', '#EFE7DB', '#5C4435'],
-      });
-
+      confetti({ particleCount: 150, spread: 80, origin: { y: 0.7 }, colors: ['#D4A44B', '#ffffff', '#c4943b'] });
       setBookingSuccess(true);
-      setName('');
-      setPhone('');
-      setDate('');
-      setVenue('');
-      setMessage('');
     } catch (err: any) {
-      setBookingError(err.message || 'Failed to submit inquiry.');
+      setBookingError(err.message || 'Submission failed. Try again.');
     } finally {
       setBookingSubmitting(false);
     }
   };
 
-  // Fallback items if database is clean
-  const fallbackPortfolio = [
-    { id: 'p1', title: 'The Udaipur Palace Nuptials', category: 'Wedding', mediaUrl: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800', mediaType: 'IMAGE', description: 'Editorial fine-art capture under a canopy of roses at Taj Lake Palace.' },
-    { id: 'p2', title: 'Romantic Shadows in Milan', category: 'Pre-Wedding', mediaUrl: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=800', mediaType: 'IMAGE', description: 'Pre-wedding documentary session in front of the Milan Cathedral.' },
-    { id: 'p3', title: 'Sacred Vows Cinematic Loop', category: 'Films', mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-newlyweds-slow-dancing-in-a-hallway-with-glowing-lights-40089-large.mp4', mediaType: 'VIDEO', description: 'Slow-motion video highlighting the emotional wedding vows.' },
-    { id: 'p4', title: 'Seine River Proposal', category: 'Destination', mediaUrl: 'https://images.unsplash.com/photo-1519225495810-7517c24a2ed3?w=800', mediaType: 'IMAGE', description: 'Surprise proposal documentary session shot in Paris, France.' }
+  const getWhatsAppLink = () => {
+    const text = `Hello Shutter Stories! I have submitted a booking inquiry.\n\n*Name*: ${name}\n*Phone*: ${phone}\n*Date*: ${date}\n*Event*: ${eventType}\n*Venue*: ${venue}\n*Package*: ${packageType}\n*Message*: ${message}`;
+    return `https://wa.me/919049678380?text=${encodeURIComponent(text)}`;
+  };
+
+  const staticServices = [
+    { num: '01', title: 'Wedding Stories', tag: 'Luxury Nuptials', href: '/services', img: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=700' },
+    { num: '02', title: 'Pre-Wedding Shoots', tag: 'Love Stories', href: '/services', img: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=700' },
+    { num: '03', title: 'Cinematic Films', tag: 'Anamorphic Capture', href: '/films', img: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=700' },
+    { num: '04', title: 'Destination Weddings', tag: 'Worldwide commissions', href: '/portfolio', img: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=700' },
+    { num: '05', title: 'Corporate Events', tag: 'Luxury Narratives', href: '/services', img: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=700' },
+    { num: '06', title: 'Luxury Albums', tag: 'Italian Leather Bound', href: '/services', img: 'https://images.unsplash.com/photo-1519225495810-7517c24a2ed3?w=700' },
   ];
 
-  const currentPortfolio = portfolio.length > 0 ? portfolio : fallbackPortfolio;
-  
-  const fallbackTestimonials = [
-    { clientName: 'Aishwarya & Rohan', clientRole: 'Udaipur Palace Wedding', reviewText: 'Shutter Stories did not just take photos; they created cinematic history for our family. Every frame looks like a high-fashion Vogue editorial.', rating: 5, avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150', videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-newlyweds-slow-dancing-in-a-hallway-with-glowing-lights-40089-large.mp4' },
-    { clientName: 'Meera & Dev', clientRole: 'Lake Como Story', reviewText: 'We cried watching our pre-wedding cinematic film! They managed to capture the poetry in our relationship. Truly outstanding team.', rating: 5, avatarUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150', videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-romantic-couple-walking-in-a-forest-41615-large.mp4' }
+  const fallbackFilms = [
+    { title: 'The Royal Affair', loc: 'Udaipur, India', dur: '10 Min Film', url: 'https://assets.mixkit.co/videos/preview/mixkit-newlyweds-slow-dancing-in-a-hallway-with-glowing-lights-40089-large.mp4', poster: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=600' },
+    { title: 'Whispers in Milan', loc: 'Milan, Italy', dur: '4 Min Story', url: 'https://assets.mixkit.co/videos/preview/mixkit-romantic-couple-walking-in-a-forest-41615-large.mp4', poster: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600' },
+    { title: 'A Coastal Symphony', loc: 'Goa, India', dur: '8 Min Film', url: 'https://assets.mixkit.co/videos/preview/mixkit-bride-and-groom-holding-hands-40081-large.mp4', poster: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=600' },
+    { title: 'Grand Opening Piano Theme', loc: 'Mumbai, India', dur: '3 Min Commercial', url: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-piano-player-in-a-suit-40078-large.mp4', poster: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=600' }
   ];
 
-  const currentTestimonials = testimonials.length > 0 ? testimonials : fallbackTestimonials;
+  const homepageFilms = films.length > 0 ? films.map((item: any) => ({
+    title: item.title,
+    loc: item.description || 'Destination Commission',
+    dur: 'Cinematic Reel',
+    url: item.mediaUrl,
+    poster: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=600'
+  })) : fallbackFilms;
 
-  // Instagram Wall photos
-  const instaPhotos = [
-    'https://images.unsplash.com/photo-1519741497674-611481863552?w=500',
-    'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=500',
-    'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=500',
-    'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=500',
-    'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=500',
-    'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=500'
+  const filteredPortfolio = portfolioItems
+    .filter((item: any) => item.mediaType === 'IMAGE') // only show image photos on main grid
+    .filter((item: any) => {
+      if (!activeCategory) return true;
+      return item.category?.slug === activeCategory;
+    })
+    .slice(0, 6); // show top 6 on homepage
+
+  const homepageTestimonials = [
+    { name: 'Aishwarya & Rohan', role: 'Udaipur Palace Wedding', text: 'Shutter Stories did not just take photos — they created cinematic history for our family. Every frame looks like a Vogue editorial. The team was completely unobtrusive.', rating: 5, avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150' },
+    { name: 'Meera & Dev', role: 'Lake Como Destination', text: 'We cried watching our cinematic film. They captured the absolute poetry in our relationship. A genuinely world-class filmmaking experience.', rating: 5, avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150' },
+    { name: 'Sophia & Liam', role: 'Taj Fateh Prakash Palace', text: 'From booking to downloading high-res sneak peeks on the client portal, everything was seamless and premium. The photos are timeless treasures.', rating: 5, avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' },
+  ];
+
+  const homepagePackages = [
+    { name: 'Essential Plan', price: 150000, desc: 'Luxury photography coverage for intimate ceremonies and editorial visual stories.', highlights: ['1 Lead Photographer', '8 Hours Coverage', '150 Retouched Photos', 'Online Gallery Access'], popular: false },
+    { name: 'Premium Package', price: 350000, desc: 'The perfect cinematic and editorial balance for standard grand celebrations.', highlights: ['2 Senior Photographers', '2 Cinematic Filmmakers', '4k Aerial Drone Shots', 'Layflat Storybook Album'], popular: true },
+    { name: 'Luxury Commission', price: 600000, desc: 'The ultimate editorial visual legacy package. No limits, absolute luxury storytelling.', highlights: ['3 Editorial Photographers', '3 Filmmakers', 'Multi-day coverage', 'Custom Leather Bound Album'], popular: false },
+    { name: 'Destination Bespoke', price: 0, desc: 'Bespoke worldwide visual commissions tailored completely to your coordinates.', highlights: ['Bespoke Crew Sizes', 'Travel logistics handled', 'Custom Color Gradings', 'Pre-wedding story sessions'], popular: false },
   ];
 
   return (
-    <div className="relative min-h-screen bg-[#F7F2EA] text-[#1F1F1F] overflow-hidden">
+    <div className="relative min-h-screen bg-[var(--background)] text-[var(--foreground)] overflow-hidden transition-colors duration-500">
       
-      {/* Three.js Particles adapted to soft gold motes */}
-      <ThreeBackground />
+      {/* Scroll Progress Indicator Bar */}
+      <div className="fixed top-0 left-0 right-0 h-1 bg-[#D4A44B] origin-left z-[9999]" style={{ transformScaleX: 'none' }} />
 
-      {/* SECTION 1: Luxury Hero */}
-      <section className="relative h-[100vh] grid grid-cols-1 lg:grid-cols-12 items-center overflow-hidden border-b border-[#5C4435]/10 bg-[#EFE7DB]/30">
-        
-        {/* Fullscreen Video Underlay with Soft Ivory overlay */}
-        <div className="absolute inset-0 z-0 bg-[#F7F2EA]">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="h-full w-full object-cover opacity-35"
-            src="https://assets.mixkit.co/videos/preview/mixkit-newlyweds-slow-dancing-in-a-hallway-with-glowing-lights-40089-large.mp4"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#F7F2EA] via-[#F7F2EA]/70 to-[#F7F2EA]/10 z-10 pointer-events-none" />
-        </div>
+      {/* ============================================
+          HERO SECTION - Fullscreen Cinematic Video
+          ============================================ */}
+      <section className="relative h-screen w-full overflow-hidden flex items-center justify-center bg-black">
+        {/* Background Video */}
+        <video
+          ref={heroVideoRef}
+          autoPlay loop muted playsInline
+          className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
+          src="https://assets.mixkit.co/videos/preview/mixkit-newlyweds-slow-dancing-in-a-hallway-with-glowing-lights-40089-large.mp4"
+        />
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-black/60 z-0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--background)] via-transparent to-black/35 z-0" />
 
-        {/* Left Column: Editorial Heading */}
-        <div className="relative z-20 lg:col-span-7 px-8 sm:px-16 flex flex-col justify-center gap-8 h-full">
-          <div className="max-w-2xl mt-16 lg:mt-0">
-            <span className="text-[10px] uppercase tracking-[0.4em] text-[#C8A96B] font-bold block mb-4">
-              EDITORIAL WEDDING & CINEMATIC FILMS
-            </span>
-            
-            <h1 className="font-editorial text-3xl sm:text-6xl md:text-7xl lg:text-[100px] xl:text-[120px] font-bold tracking-tight text-[#1A1A1A] leading-[1.0] uppercase">
-              CAPTURING MOMENTS.<br />
-              <span className="text-[#C8A96B] font-editorial italic font-normal tracking-wide lowercase block mt-1">
-                creating legacies.
-              </span>
-            </h1>
-            
-            <p className="text-[#6D6D6D] text-xs sm:text-sm tracking-[0.2em] uppercase mt-6 max-w-xl font-light leading-relaxed">
-              Luxury wedding photography and cinematic films for destination celebrations.
-            </p>
+        {/* Center Content with mouse parallax */}
+        <motion.div
+          style={{ x: mousePos.x, y: mousePos.y }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          className="relative z-10 text-center px-6 max-w-4xl mx-auto flex flex-col items-center gap-6"
+        >
+          <span className="text-[10px] uppercase tracking-[0.6em] text-[#D4A44B] font-semibold">
+            Editorial Wedding & Cinematic Films
+          </span>
+
+          {/* Camera Icon logo details */}
+          <div className="w-10 h-10 rounded-full border border-[#D4A44B]/40 flex items-center justify-center">
+            <Camera className="w-4 h-4 text-[#D4A44B]" />
           </div>
 
-          <div className="flex flex-wrap gap-4 mt-4">
+          <h1 className="font-editorial font-bold tracking-tight leading-none uppercase">
+            <span className="block text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-white">
+              CAPTURING MOMENTS.
+            </span>
+            <span className="block text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-[#D4A44B] italic font-light lowercase mt-2">
+              creating legacies.
+            </span>
+          </h1>
+
+          <p className="text-white/60 text-sm font-light tracking-wider max-w-md">
+            Luxury wedding photography and cinematic films for destination celebrations worldwide.
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-2">
             <Link
               href="/portfolio"
-              className="text-[10px] uppercase tracking-[0.25em] bg-[#1A1A1A] text-[#F7F2EA] font-semibold py-4.5 px-10 rounded-sm hover:bg-[#C8A96B] hover:text-[#1A1A1A] transition-all shadow-md"
+              className="text-[10px] uppercase tracking-[0.3em] bg-[#D4A44B] text-black font-bold py-3.5 px-8 hover:bg-[#c4943b] transition-all"
             >
               View Portfolio
             </Link>
             <button
-              onClick={scrollToBooking}
-              className="text-[10px] uppercase tracking-[0.25em] bg-transparent text-[#1A1A1A] border border-[#E5D8C5] hover:border-[#C8A96B] hover:text-[#C8A96B] font-semibold py-4.5 px-10 rounded-sm transition-all"
+              onClick={() => document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="text-[10px] uppercase tracking-[0.3em] border border-white/40 text-white py-3.5 px-8 hover:border-[#D4A44B] hover:text-[#D4A44B] transition-all font-light"
             >
               Book Consultation
             </button>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Right Column: Large Wedding Photograph & Video Reel Preview */}
-        <div className="relative z-20 lg:col-span-5 h-full hidden lg:flex items-center justify-center pr-12">
-          <div className="relative w-full aspect-[4/5] max-w-md overflow-hidden rounded-sm border border-[#E5D8C5] shadow-2xl group">
-            <img
-              src="/images/hero_wedding.png"
-              alt="Luxury Wedding Portrait"
-              className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-103 animate-reveal"
-            />
-            <div className="absolute inset-0 bg-[#EFE7DB]/10 group-hover:bg-transparent transition-all duration-700" />
-            
-            {/* Reel Video Loop Popup Trigger */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <button
-                onClick={() => setIsPlayingReel(true)}
-                className="h-16 w-16 bg-[#F7F2EA]/90 border border-[#C8A96B]/50 rounded-full flex items-center justify-center text-[#C8A96B] hover:bg-[#C8A96B] hover:text-[#F7F2EA] transition-all shadow-2xl scale-95 group-hover:scale-105 cursor-pointer"
-                title="Play Reel Trailer"
-              >
-                <Play className="h-5 w-5 fill-current ml-0.5" />
-              </button>
-            </div>
+        {/* Mute Toggle (bottom left) */}
+        <button
+          onClick={() => setIsMuted(!isMuted)}
+          className="absolute bottom-8 left-8 z-20 flex items-center gap-2 text-white/60 hover:text-white text-[9px] uppercase tracking-[0.2em] transition-colors focus:outline-none cursor-pointer"
+        >
+          {isMuted
+            ? <VolumeX className="h-4 w-4 text-[#D4A44B]" />
+            : <Volume2 className="h-4 w-4 text-[#D4A44B]" />}
+          {isMuted ? 'Unmute Preview' : 'Mute Sound'}
+        </button>
 
-            {/* Float Badge - Watch Reel CTA */}
-            <div className="absolute bottom-6 left-6 bg-[#F7F2EA]/90 backdrop-blur-md px-4 py-2 border border-[#E5D8C5] rounded-sm">
-              <span className="text-[8px] uppercase tracking-[0.3em] font-semibold text-[#C8A96B] block">
-                WATCH REEL
-              </span>
-              <span className="text-[10px] font-editorial italic text-[#1A1A1A] block font-bold mt-0.5">
-                Cinematic Wedding Reel &bull; 02:45
-              </span>
-            </div>
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 select-none">
+          <span className="text-[8px] uppercase tracking-[0.4em] text-white/40 font-light">Scroll To Explore</span>
+          <div className="w-5 h-8 border border-white/20 rounded-full flex items-start justify-center p-1">
+            <div className="w-1 h-2 bg-[#D4A44B] rounded-full animate-bounce" />
           </div>
         </div>
 
+        {/* Floating Social Icons (right edge) */}
+        <div className="absolute right-6 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-4 select-none">
+          <div className="w-px h-16 bg-white/20" />
+          <a href="https://instagram.com" target="_blank" rel="noreferrer" className="text-white/50 hover:text-[#D4A44B] transition-colors">
+            <Instagram className="h-4 w-4" />
+          </a>
+          <a href="https://youtube.com" target="_blank" rel="noreferrer" className="text-white/50 hover:text-[#D4A44B] transition-colors">
+            <Youtube className="h-4 w-4" />
+          </a>
+          <a href="https://facebook.com" target="_blank" rel="noreferrer" className="text-white/50 hover:text-[#D4A44B] transition-colors">
+            <Facebook className="h-4 w-4" />
+          </a>
+          <div className="w-px h-16 bg-white/20" />
+          <span className="text-[7px] uppercase tracking-[0.35em] text-white/30 font-light" style={{ writingMode: 'vertical-rl' }}>Follow Us</span>
+        </div>
       </section>
 
-      {/* SECTION 2: Category Showcase */}
-      <section className="py-16 sm:py-24 lg:py-32 relative overflow-hidden bg-[#EFE7DB]/30 border-b border-[#E5D8C5]">
-        <div className="text-center mb-20 px-6">
-          <span className="text-[10px] uppercase tracking-[0.4em] text-[#C8A96B] font-bold">THE GALLERIES</span>
-          <h2 className="font-editorial text-3xl sm:text-5xl font-bold tracking-tight uppercase text-[#1A1A1A] mt-3">
-            Category Showcase
-          </h2>
-          <div className="w-12 h-[1px] bg-[#C8A96B] mx-auto mt-4" />
+      {/* ============================================
+          SERVICES SHOWCASE SECTION
+          ============================================ */}
+      <section className="bg-[var(--beige)] border-y border-[var(--border-color)] py-0">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+          {staticServices.map((svc, idx) => (
+            <Link
+              key={idx}
+              href={svc.href}
+              className="relative group flex flex-col overflow-hidden border-r border-[var(--border-color)] last:border-r-0 bg-[var(--beige)]"
+            >
+              {/* Top metadata */}
+              <div className="px-5 pt-6 pb-4 text-[var(--foreground)] flex flex-col gap-1 min-h-[100px] border-b border-[var(--border-color)] z-10 bg-[var(--beige)]">
+                <span className="text-[#D4A44B] font-editorial text-2xl italic font-light">{svc.num}</span>
+                <h3 className="font-bold text-[11px] uppercase tracking-wider leading-tight text-[var(--foreground)]">{svc.title}</h3>
+                <span className="inline-flex items-center gap-1 text-[8px] uppercase tracking-[0.2em] text-[#D4A44B] font-semibold mt-1 group-hover:gap-2 transition-all">
+                  Explore <ArrowRight className="h-2.5 w-2.5" />
+                </span>
+              </div>
+
+              {/* Image */}
+              <div className="relative h-52 sm:h-64 overflow-hidden">
+                <img
+                  src={svc.img}
+                  alt={svc.title}
+                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              </div>
+            </Link>
+          ))}
         </div>
+      </section>
 
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* ============================================
+          ABOUT SECTION
+          ============================================ */}
+      <section className="py-24 relative z-10 bg-[var(--background)]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          
+          {/* Left: Story Content */}
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUp}
+            className="flex flex-col gap-6"
+          >
+            <span className="text-[10px] uppercase tracking-[0.4em] text-[#D4A44B] font-semibold">Our Philosophy</span>
+            <h2 className="font-editorial text-4xl sm:text-5xl lg:text-6xl font-bold uppercase text-[var(--foreground)] leading-tight">
+              Every Frame<br />Tells A Story
+            </h2>
+            <p className="text-[var(--secondary-text)] text-xs sm:text-sm leading-relaxed font-light max-w-md">
+              We are a team of global wedding photographers, filmmakers & visual directors. We believe in capturing the raw sigh, the tear caught on an eyelash, and translating authentic celebrations into high-fashion editorial legacies.
+            </p>
+            <ul className="grid grid-cols-2 gap-3.5 mt-2">
+              {[
+                { text: 'Award Winning Team', icon: Award },
+                { text: '5+ Years of Experience', icon: Clock },
+                { text: '1000+ Happy Clients', icon: Users },
+                { text: 'Available Worldwide', icon: Globe }
+              ].map((item, idx) => (
+                <li key={idx} className="flex items-center gap-2.5 text-xs text-[var(--foreground)] font-light">
+                  <Check className="h-4 w-4 text-[#D4A44B] shrink-0" />
+                  {item.text}
+                </li>
+              ))}
+            </ul>
+            <Link
+              href="/about"
+              className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] bg-[#D4A44B] text-black font-bold py-3.5 px-8 hover:bg-[#c4943b] transition-all self-start mt-4"
+            >
+              Know Our Story
+            </Link>
+          </motion.div>
+
+          {/* Right: Large cinematic image with parallax scale */}
+          <div className="relative h-[440px] lg:h-[560px] overflow-hidden rounded-sm border border-[var(--border-color)] shadow-2xl group">
+            <img
+              src="/images/about_bts.png"
+              alt="Behind The Scenes Visual Director"
+              className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 grayscale group-hover:grayscale-0"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent z-10 pointer-events-none" />
+            <div className="absolute bottom-6 left-6 z-20">
+              <span className="text-[9px] uppercase tracking-[0.2em] text-[#D4A44B] font-semibold">Active Crew Setup</span>
+              <h4 className="font-editorial text-lg text-white uppercase font-bold mt-1">Taj Aravali Palace, Udaipur</h4>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
+          STATISTICS SECTION
+          ============================================ */}
+      <section ref={statsRef} className="bg-[var(--beige)] border-y border-[var(--border-color)] py-16">
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 items-center">
           {[
-            { num: '01', title: 'Wedding Stories', tag: 'Luxury Nuptials', href: '/portfolio', img: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800' },
-            { num: '02', title: 'Pre-Wedding Shoots', tag: 'Love Stories', href: '/portfolio', img: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=800' },
-            { num: '03', title: 'Cinematic Films', tag: 'Anamorphic Documentaries', href: '/films', img: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800' },
-            { num: '04', title: 'Destination Weddings', tag: 'Worldwide Coverage', href: '/portfolio', img: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800' },
-            { num: '05', title: 'Corporate Events', tag: 'Brand Narratives', href: '/portfolio', img: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800' },
-            { num: '06', title: 'Luxury Albums', tag: 'Italian Leather Books', href: '/services', img: 'https://images.unsplash.com/photo-1519225495810-7517c24a2ed3?w=800' }
-          ].map((cat, idx) => {
+            { val: '1000+', countIndex: 0, label: 'Happy Clients', icon: Users },
+            { val: '500+', countIndex: 1, label: 'Weddings Covered', icon: Camera },
+            { val: '150+', countIndex: 2, label: 'Cinematic Films', icon: Film },
+            { val: '50+', countIndex: 3, label: 'Destination Weddings', icon: Globe },
+            { val: 'Award', countIndex: -1, label: 'Winning Team', icon: Award },
+          ].map((st, idx) => {
+            const Icon = st.icon;
             return (
-              <Link
-                key={idx}
-                href={cat.href}
-                className="relative h-[420px] rounded-sm group overflow-hidden border border-[#E5D8C5] flex flex-col justify-between p-8 shadow-sm transition-all duration-700 cursor-pointer"
-              >
-                {/* Gold border line animation on hover */}
-                <div className="absolute top-0 left-0 w-0 h-[1.5px] bg-[#C8A96B] group-hover:w-full transition-all duration-700 z-20" />
-                <div className="absolute bottom-0 right-0 w-0 h-[1.5px] bg-[#C8A96B] group-hover:w-full transition-all duration-700 z-20" />
-                <div className="absolute top-0 right-0 w-[1.5px] h-0 bg-[#C8A96B] group-hover:h-full transition-all duration-700 z-20" />
-                <div className="absolute bottom-0 left-0 w-[1.5px] h-0 bg-[#C8A96B] group-hover:h-full transition-all duration-700 z-20" />
-
-                {/* Image Background */}
-                <div className="absolute inset-0 z-0">
-                  <img
-                    src={cat.img}
-                    alt={cat.title}
-                    className="w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-105 grayscale group-hover:grayscale-0 opacity-85"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/95 via-[#1A1A1A]/20 to-transparent z-10" />
+              <div key={idx} className="flex items-center gap-3.5 justify-center lg:justify-start">
+                <div className="h-10 w-10 border border-[#D4A44B]/20 rounded-full flex items-center justify-center bg-[var(--background)] shadow-sm">
+                  <Icon className="h-4.5 w-4.5 text-[#D4A44B] stroke-[1.5]" />
                 </div>
-
-                {/* Top: Luxury Numbering */}
-                <div className="relative z-20 flex justify-between items-start">
-                  <span className="font-editorial text-4xl italic text-[#C8A96B] opacity-75 group-hover:opacity-100 transition-opacity">
-                    {cat.num}
+                <div>
+                  <span className="block text-2xl font-editorial font-bold text-[var(--foreground)]">
+                    {st.countIndex !== -1 ? `${counts[st.countIndex]}+` : st.val}
                   </span>
+                  <span className="block text-[8px] uppercase tracking-[0.25em] text-[var(--secondary-text)] mt-0.5 font-light">{st.label}</span>
                 </div>
-
-                {/* Bottom: Card Content */}
-                <div className="relative z-20 flex flex-col gap-1.5">
-                  <span className="text-[8px] uppercase tracking-[0.3em] text-[#C8A96B] font-bold">
-                    {cat.tag}
-                  </span>
-                  <h3 className="font-editorial text-xl font-bold text-[#F7F2EA] uppercase tracking-wide">
-                    {cat.title}
-                  </h3>
-                  <div className="inline-flex items-center gap-1 text-[9px] uppercase tracking-[0.2em] text-[#C8A96B] group-hover:text-[#F7F2EA] transition-colors mt-2">
-                    Explore Card <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </Link>
+              </div>
             );
           })}
         </div>
       </section>
 
-      {/* SECTION 3: About Story */}
-      <section className="py-16 sm:py-24 lg:py-32 relative overflow-hidden bg-[#F7F2EA] border-b border-[#E5D8C5]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+      {/* ============================================
+          CINEMATIC FILMS SECTION - Netflix-Style
+          ============================================ */}
+      <section className="bg-black py-24 overflow-hidden border-b border-white/5 relative">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10">
+          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-12 items-start">
             
-            {/* Left Content */}
+            {/* Left Description Panel */}
             <div className="flex flex-col gap-6">
-              <span className="text-[10px] uppercase tracking-[0.4em] text-[#C8A96B] font-bold">OUR HERITAGE</span>
-              <h2 className="font-editorial text-3xl sm:text-5xl font-bold uppercase tracking-tight text-[#1A1A1A] leading-tight">
-                EVERY FRAME TELLS A STORY
+              <span className="text-[10px] uppercase tracking-[0.4em] text-[#D4A44B] font-semibold">Cinematic Films</span>
+              <h2 className="font-editorial text-4xl lg:text-5xl font-bold uppercase text-white leading-tight">
+                Watch Our Latest Films
               </h2>
-              <div className="w-16 h-[1px] bg-[#C8A96B] my-2" />
-              
-              <p className="text-[#6D6D6D] text-xs sm:text-sm leading-relaxed tracking-wider font-light">
-                Inspired by the editorial symmetry of high-end magazines and Vogue photography, we document families, love, and architecture. We do not work on simple portfolios; we build emotional heirlooms that last generations.
+              <p className="text-white/40 text-xs font-light leading-relaxed">
+                Experience high-fashion cinematic trailers shot on anamorphic camera configurations. Hover over cards for soundless previews.
               </p>
-              <p className="text-[#6D6D6D] text-xs sm:text-sm leading-relaxed tracking-wider font-light">
-                From remote cliffs in southern Italy to majestic palace halls in Udaipur, our global team captures candid raw feelings and grand configurations with cinema-grade instruments.
-              </p>
-
-              {/* Grid of Key Features */}
-              <div className="grid grid-cols-2 gap-6 mt-8 pt-8 border-t border-[#E5D8C5] text-center">
-                <div>
-                  <Award className="h-5 w-5 text-[#C8A96B] mx-auto mb-2" />
-                  <span className="block text-xl font-editorial font-bold text-[#1A1A1A]">12+ Awards</span>
-                  <span className="text-[8px] uppercase tracking-[0.2em] text-[#6D6D6D] block mt-0.5">National Fine-Art</span>
-                </div>
-                <div>
-                  <Clock className="h-5 w-5 text-[#C8A96B] mx-auto mb-2" />
-                  <span className="block text-xl font-editorial font-bold text-[#1A1A1A]">8 Years</span>
-                  <span className="text-[8px] uppercase tracking-[0.2em] text-[#6D6D6D] block mt-0.5">Studio Experience</span>
-                </div>
-                <div>
-                  <Users className="h-5 w-5 text-[#C8A96B] mx-auto mb-2" />
-                  <span className="block text-xl font-editorial font-bold text-[#1A1A1A]">500+ Clients</span>
-                  <span className="text-[8px] uppercase tracking-[0.2em] text-[#6D6D6D] block mt-0.5">Delighted Couples</span>
-                </div>
-                <div>
-                  <Globe className="h-5 w-5 text-[#C8A96B] mx-auto mb-2" />
-                  <span className="block text-xl font-editorial font-bold text-[#1A1A1A]">Worldwide</span>
-                  <span className="text-[8px] uppercase tracking-[0.2em] text-[#6D6D6D] block mt-0.5">Destinations Covered</span>
-                </div>
-              </div>
+              <Link
+                href="/films"
+                className="inline-flex items-center gap-2 text-[9px] uppercase tracking-[0.3em] border border-white/30 text-white py-3 px-6 hover:border-[#D4A44B] hover:text-[#D4A44B] transition-all self-start font-light mt-2"
+              >
+                View All Films <ArrowRight className="h-3 w-3" />
+              </Link>
             </div>
 
-            {/* Right BTS Photo inside a Luxury Editorial Frame container */}
-            <div className="border border-[#E5D8C5] p-3 bg-[#EFE7DB]/40 rounded-sm shadow-xl transition-all duration-700 hover:shadow-2xl">
-              <div className="relative group aspect-[4/5] overflow-hidden rounded-sm shadow-inner">
-                <img
-                  src="/images/about_bts.png"
-                  alt="Behind The Scenes Filmmaking"
-                  className="w-full h-full object-cover grayscale opacity-90 group-hover:scale-102 group-hover:grayscale-0 transition-all duration-1000"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#F7F2EA] via-transparent to-transparent z-10" />
-              </div>
+            {/* Right Panel: Netflix horizontal scroll slider */}
+            <div className="flex gap-6 overflow-x-auto pb-6 scrollbar-none snap-x snap-mandatory pt-2">
+              {homepageFilms.map((film, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => setActiveVideo(film.url)}
+                  onMouseEnter={(e) => {
+                    const v = e.currentTarget.querySelector('video');
+                    if (v) v.play().catch(() => {});
+                  }}
+                  onMouseLeave={(e) => {
+                    const v = e.currentTarget.querySelector('video');
+                    if (v) { v.pause(); v.currentTime = 0; }
+                  }}
+                  className="w-[240px] sm:w-[280px] shrink-0 snap-start group cursor-pointer relative"
+                >
+                  <div className="relative aspect-[3/4] overflow-hidden rounded-sm border border-white/10 bg-neutral-900 shadow-2xl">
+                    <img src={film.poster} alt={film.title} className="absolute inset-0 w-full h-full object-cover group-hover:opacity-0 transition-opacity duration-700" />
+                    <video src={film.url} loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/25 transition-all duration-300 z-10" />
+                    
+                    {/* Floating Play Indicator */}
+                    <div className="absolute inset-0 flex items-center justify-center z-20">
+                      <span className="h-12 w-12 rounded-full bg-white/10 border border-white/30 flex items-center justify-center text-white group-hover:bg-[#D4A44B] group-hover:border-[#D4A44B] transition-all group-hover:scale-110">
+                        <Play className="h-4.5 w-4.5 fill-current ml-0.5" />
+                      </span>
+                    </div>
+
+                    {/* Badge duration */}
+                    <span className="absolute top-4 right-4 z-20 text-[8px] uppercase tracking-wider bg-black/60 backdrop-blur-md px-2 py-0.5 border border-white/10 text-white font-semibold">
+                      {film.dur}
+                    </span>
+                  </div>
+                  
+                  <div className="mt-3 flex flex-col gap-1">
+                    <div className="flex items-center justify-between text-[9px] uppercase tracking-wider">
+                      <span className="text-[#D4A44B] font-semibold">{film.loc}</span>
+                    </div>
+                    <span className="text-sm font-semibold text-white truncate">{film.title}</span>
+                  </div>
+                </div>
+              ))}
             </div>
 
           </div>
         </div>
       </section>
 
-      {/* SECTION 4: Featured Films */}
-      <section className="py-16 sm:py-24 lg:py-32 relative overflow-hidden bg-[#EFE7DB]/30 border-b border-[#E5D8C5]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-end justify-between mb-16 gap-4">
+      {/* ============================================
+          PORTFOLIO SHOWCASE MASONRY
+          ============================================ */}
+      <section className="py-24 bg-[var(--background)]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10">
+          
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-[var(--border-color)] pb-8">
             <div>
-              <span className="text-[10px] uppercase tracking-[0.4em] text-[#C8A96B] font-bold block mb-2">CINEMATOGRAPHY</span>
-              <h2 className="font-editorial text-3xl sm:text-5xl font-bold uppercase tracking-tight text-[#1A1A1A]">
-                Featured Films
-              </h2>
+              <span className="text-[10px] uppercase tracking-[0.4em] text-[#D4A44B] font-semibold block mb-2">Visual Archive</span>
+              <h2 className="font-editorial text-4xl lg:text-5xl font-bold uppercase text-[var(--foreground)]">Editorial Stories</h2>
             </div>
-            <Link
-              href="/films"
-              className="inline-flex items-center gap-2.5 text-[10px] uppercase tracking-[0.2em] text-[#C8A96B] hover:text-[#1A1A1A] font-bold transition-all border-b border-[#C8A96B] pb-1.5"
+            
+            {/* Categories filters */}
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1">
+              <button
+                onClick={() => setActiveCategory('')}
+                className={`text-[9px] uppercase tracking-widest px-4 py-2 border rounded-sm transition-all cursor-pointer ${
+                  activeCategory === ''
+                    ? 'bg-[#D4A44B] border-[#D4A44B] text-black font-bold'
+                    : 'border-[var(--border-color)] text-[var(--foreground)] opacity-70 hover:opacity-100'
+                }`}
+              >
+                All
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.slug)}
+                  className={`text-[9px] uppercase tracking-widest px-4 py-2 border rounded-sm transition-all cursor-pointer ${
+                    activeCategory === cat.slug
+                      ? 'bg-[#D4A44B] border-[#D4A44B] text-black font-bold'
+                      : 'border-[var(--border-color)] text-[var(--foreground)] opacity-70 hover:opacity-100'
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Masonry Image Gallery list */}
+          {loadingPortfolio ? (
+            <div className="flex justify-center py-20">
+              <div className="h-7 w-7 border-2 border-[#D4A44B] border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : filteredPortfolio.length === 0 ? (
+            <div className="text-center py-20 border border-dashed border-[var(--border-color)] rounded-sm">
+              <span className="text-xs uppercase tracking-wider text-[var(--secondary-text)]">No photography records found</span>
+            </div>
+          ) : (
+            <motion.div
+              layout
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6"
             >
-              View All Films
+              {filteredPortfolio.map((item) => (
+                <motion.div
+                  layout
+                  key={item.id}
+                  onClick={() => setLightboxItem(item)}
+                  className="break-inside-avoid relative overflow-hidden rounded-sm border border-[var(--border-color)] group cursor-pointer shadow-sm bg-[var(--card-bg)]"
+                >
+                  <img
+                    src={item.mediaUrl}
+                    alt={item.title}
+                    className="w-full h-auto object-cover grayscale group-hover:grayscale-0 group-hover:scale-[1.01] transition-all duration-700"
+                    loading="lazy"
+                  />
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-6 z-10">
+                    <span className="text-[#D4A44B] text-[8px] uppercase tracking-[0.25em] font-semibold mb-1">{item.category?.name}</span>
+                    <h4 className="font-editorial text-base text-white font-bold">{item.title}</h4>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+
+          <div className="text-center mt-12">
+            <Link
+              href="/portfolio"
+              className="inline-flex items-center gap-2 text-[9px] uppercase tracking-[0.25em] bg-[var(--beige)] text-[var(--foreground)] border border-[var(--border-color)] hover:border-[#D4A44B] font-bold py-3.5 px-8 transition-all"
+            >
+              View Full Gallery Archive <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
 
-          {/* Horizontal Film gallery */}
-          <div className="flex gap-8 overflow-x-auto pb-8 scrollbar-none snap-x snap-mandatory">
-            {[
-              { title: 'The Royal Legacy Taj Udaipur', desc: 'Meera & Dev’s grand palatial celebration.', url: 'https://assets.mixkit.co/videos/preview/mixkit-newlyweds-slow-dancing-in-a-hallway-with-glowing-lights-40089-large.mp4', loc: 'Udaipur, India', dur: '12 Min Film', poster: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=600' },
-              { title: 'Italian Shadows at Como', desc: 'Sophia & Liam’s fashion editorial pre-wedding.', url: 'https://assets.mixkit.co/videos/preview/mixkit-romantic-couple-walking-in-a-forest-41615-large.mp4', loc: 'Lake Como, Italy', dur: '8 Min Film', poster: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600' },
-              { title: 'Beachside Symphonies Goa', desc: 'Pooja & Kabir’s sunset sand ceremony.', url: 'https://assets.mixkit.co/videos/preview/mixkit-bride-and-groom-holding-hands-40081-large.mp4', loc: 'Goa, India', dur: '10 Min Film', poster: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=600' }
-            ].map((film, idx) => (
+        </div>
+      </section>
+
+      {/* ============================================
+          TESTIMONIALS SECTION
+          ============================================ */}
+      <section className="bg-black py-24 border-t border-white/5 relative z-10">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <span className="text-[10px] uppercase tracking-[0.4em] text-[#D4A44B] font-semibold">Kind Words</span>
+          <h2 className="font-editorial text-4xl sm:text-5xl font-bold uppercase text-white mt-3 mb-14">Client Stories</h2>
+
+          <div className="relative min-h-[200px] flex items-center justify-center">
+            {homepageTestimonials.map((t, idx) => (
               <div
                 key={idx}
-                onClick={() => setActiveVideoUrl(film.url)}
-                onMouseEnter={(e) => {
-                  const video = e.currentTarget.querySelector('video');
-                  if (video) video.play().catch(() => {});
-                }}
-                onMouseLeave={(e) => {
-                  const video = e.currentTarget.querySelector('video');
-                  if (video) {
-                    video.pause();
-                    video.currentTime = 0;
-                  }
-                }}
-                className="w-[280px] xs:w-[320px] sm:w-[480px] shrink-0 snap-start group cursor-pointer relative aspect-video overflow-hidden rounded-sm border border-[#E5D8C5] bg-neutral-950 shadow-lg hover:border-[#C8A96B] hover:shadow-[0_0_25px_rgba(200,169,107,0.35)] transition-all duration-500"
+                className={`transition-all duration-700 w-full ${idx === testimonialIdx ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 absolute inset-0 translate-y-4 scale-95 pointer-events-none'}`}
               >
-                {/* Overlay Vignette */}
-                <div className="absolute inset-0 bg-[#1A1A1A]/40 group-hover:bg-[#1A1A1A]/10 transition-all z-10 duration-500" />
-                
-                {/* Poster Cover Image */}
-                <img
-                  src={film.poster}
-                  alt={film.title}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-103 transition-transform duration-700 pointer-events-none group-hover:opacity-0"
-                />
-
-                {/* Auto Preview Video on Hover */}
-                <video
-                  src={film.url}
-                  loop
-                  muted
-                  playsInline
-                  className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 group-hover:scale-103 transition-all duration-700 pointer-events-none"
-                />
-
-                {/* Play Icon */}
-                <div className="absolute inset-0 flex items-center justify-center z-20">
-                  <span className="h-12 w-12 bg-[#F7F2EA]/95 border border-[#C8A96B]/30 rounded-full flex items-center justify-center text-[#C8A96B] group-hover:bg-[#C8A96B] group-hover:text-[#F7F2EA] transition-all scale-95 group-hover:scale-105 shadow-xl">
-                    <Play className="h-4 w-4 fill-current ml-0.5" />
-                  </span>
+                <div className="flex justify-center gap-1 mb-6">
+                  {[...Array(t.rating)].map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-[#D4A44B] text-[#D4A44B]" />
+                  ))}
                 </div>
-
-                {/* Details Overlay Badge */}
-                <div className="absolute bottom-4 left-4 right-4 z-20 flex justify-between items-end bg-[#F7F2EA]/90 backdrop-blur-md p-3.5 border border-[#E5D8C5] rounded-sm">
-                  <div>
-                    <span className="text-[8px] uppercase tracking-[0.2em] text-[#C8A96B] font-bold block">{film.dur} &bull; {film.loc}</span>
-                    <span className="text-[10px] font-bold text-[#1A1A1A] block mt-0.5 line-clamp-1">{film.title}</span>
+                <p className="font-editorial text-lg sm:text-2xl italic text-white/90 leading-relaxed mb-8 max-w-2xl mx-auto">
+                  "{t.text}"
+                </p>
+                <div className="flex items-center justify-center gap-3.5">
+                  <img src={t.avatar} alt={t.name} className="h-11 w-11 rounded-full object-cover border border-[#D4A44B]/30" />
+                  <div className="text-left leading-tight">
+                    <span className="block text-xs font-semibold text-white">{t.name}</span>
+                    <span className="block text-[9px] uppercase tracking-[0.2em] text-[#D4A44B] mt-1">{t.role}</span>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* SECTION 5: Statistics Counter Row */}
-      <section className="py-20 relative overflow-hidden bg-[#EFE7DB] border-b border-[#E5D8C5] flex items-center justify-center">
-        <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 w-full">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 text-center items-start justify-items-center">
-            {[
-              { val: '1000+', label: 'Happy Clients', icon: Users },
-              { val: '500+', label: 'Weddings Covered', icon: Camera },
-              { val: '150+', label: 'Cinematic Films', icon: Film },
-              { val: '50+', label: 'Destination Weddings', icon: Globe },
-              { val: 'Award', label: 'Winning Team', icon: Award }
-            ].map((stat, idx) => {
-              const Icon = stat.icon;
-              return (
-                <div key={idx} className="flex flex-col items-center gap-2 col-span-1 last:col-span-2 sm:last:col-span-1 lg:last:col-span-1">
-                  <div className="h-10 w-10 bg-[#F7F2EA]/80 border border-[#C8A96B]/20 rounded-full flex items-center justify-center text-[#C8A96B] mb-1 shadow-sm">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <span className="text-2xl sm:text-3xl font-bold font-editorial text-[#C8A96B] leading-none">{stat.val}</span>
-                  <span className="text-[9px] uppercase tracking-[0.2em] text-[#6D6D6D] font-light max-w-[120px]">{stat.label}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 6: Testimonials */}
-      <section className="py-16 sm:py-24 lg:py-32 relative overflow-hidden border-b border-[#E5D8C5] bg-[#F7F2EA]">
-        <div className="text-center mb-20 px-6">
-          <span className="text-[10px] uppercase tracking-[0.4em] text-[#C8A96B] font-bold">KIND WORDS</span>
-          <h2 className="font-editorial text-3xl sm:text-5xl font-bold tracking-tight uppercase text-[#1A1A1A] mt-3">
-            Client Stories
-          </h2>
-          <div className="w-12 h-[1px] bg-[#C8A96B] mx-auto mt-4" />
-        </div>
-
-        <div className="mx-auto max-w-5xl px-6 grid grid-cols-1 md:grid-cols-2 gap-10">
-          {currentTestimonials.map((t, idx) => (
-            <div
-              key={idx}
-              className="glass-panel p-8 sm:p-10 rounded-sm border border-[#E5D8C5] flex flex-col justify-between hover:border-[#C8A96B] transition-all duration-500 shadow-lg relative bg-[#F7F2EA]/90 backdrop-blur-md"
-            >
-              <div>
-                <div className="flex items-center justify-between gap-4 mb-6">
-                  <div className="flex items-center gap-1 text-[#C8A96B]">
-                    {[...Array(t.rating || 5)].map((_, i) => (
-                      <Star key={i} className="h-3.5 w-3.5 fill-[#C8A96B] stroke-none" />
-                    ))}
-                  </div>
-                  <span className="text-[8px] uppercase tracking-[0.2em] text-[#6D6D6D] bg-[#EFE7DB] px-2.5 py-1 rounded-sm font-semibold border border-[#E5D8C5]">
-                    Google Review
-                  </span>
-                </div>
-                <p className="font-editorial text-base italic leading-relaxed text-[#1A1A1A]/95 mb-8">
-                  "{t.reviewText}"
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between border-t border-[#E5D8C5] pt-6 mt-4">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={t.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                    alt={t.clientName}
-                    className="h-10 w-10 rounded-full object-cover border border-[#C8A96B]/30"
-                  />
-                  <div>
-                    <h4 className="text-xs font-bold text-[#1A1A1A] uppercase tracking-wider">{t.clientName}</h4>
-                    <p className="text-[8px] uppercase tracking-[0.2em] text-[#C8A96B] mt-0.5">{t.clientRole}</p>
-                  </div>
-                </div>
-
-                {t.videoUrl && (
-                  <button
-                    onClick={() => setActiveVideoUrl(t.videoUrl)}
-                    className="h-9 w-9 bg-[#C8A96B]/15 border border-[#C8A96B]/30 text-[#C8A96B] hover:bg-[#C8A96B] hover:text-[#F7F2EA] rounded-full flex items-center justify-center transition-all shadow-sm cursor-pointer"
-                    title="Play Video Review"
-                  >
-                    <Play className="h-3.5 w-3.5 fill-current ml-0.5" />
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* SECTION 7: Instagram Gallery */}
-      <section className="py-16 sm:py-24 lg:py-32 relative overflow-hidden border-b border-[#E5D8C5] bg-[#EFE7DB]/30">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-          <div>
-            <span className="text-[10px] uppercase tracking-[0.4em] text-[#C8A96B] font-bold block mb-2">VOGUE DIARIES</span>
-            <h2 className="font-editorial text-3xl sm:text-5xl font-bold tracking-tight uppercase text-[#1A1A1A]">
-              Instagram Gallery
-            </h2>
-            <span className="text-[10px] uppercase tracking-[0.2em] text-[#6D6D6D] mt-2 block">
-              @shutterstories &bull; LIVE EDITORIAL FEED
-            </span>
-          </div>
-          <a
-            href="https://instagram.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] bg-[#1A1A1A] text-[#F7F2EA] font-semibold py-3 px-8 rounded-sm hover:bg-[#C8A96B] hover:text-[#1A1A1A] transition-all self-start"
-          >
-            Follow Us
-          </a>
-        </div>
-
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 grid grid-cols-2 md:grid-cols-6 gap-4">
-          {instaPhotos.map((url, idx) => (
-            <a
-              key={idx}
-              href="https://instagram.com"
-              target="_blank"
-              rel="noreferrer"
-              className="relative aspect-square group overflow-hidden rounded-sm border border-[#E5D8C5] shadow-sm block"
-            >
-              <img
-                src={url}
-                alt={`Instagram Post ${idx + 1}`}
-                className="w-full h-full object-cover grayscale opacity-90 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700"
+          {/* Dots */}
+          <div className="flex justify-center gap-2.5 mt-10">
+            {homepageTestimonials.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setTestimonialIdx(i)}
+                className={`transition-all rounded-full h-1.5 focus:outline-none cursor-pointer ${i === testimonialIdx ? 'w-6 bg-[#D4A44B]' : 'w-1.5 bg-white/20'}`}
+                aria-label={`Testimonial slide ${i + 1}`}
               />
-              <div className="absolute inset-0 bg-[#1A1A1A]/10 group-hover:bg-transparent transition-colors pointer-events-none" />
-              <div className="absolute inset-0 border border-transparent group-hover:border-[#C8A96B]/40 pointer-events-none transition-colors duration-500" />
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <Instagram className="h-6 w-6 text-[#1A1A1A] bg-[#F7F2EA]/90 p-1.5 rounded-full border border-[#C8A96B]/30" />
-              </div>
-            </a>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* SECTION 8: Booking Experience */}
-      <section id="booking-section" className="relative py-20 sm:py-28 lg:py-36 overflow-hidden flex items-center justify-center bg-stone-900">
+      {/* ============================================
+          PRICING SECTION
+          ============================================ */}
+      <section className="py-24 bg-[var(--background)]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10">
+          
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="text-[10px] uppercase tracking-[0.4em] text-[#D4A44B] font-semibold block mb-2">Pricing Structure</span>
+            <h2 className="font-editorial text-4xl lg:text-5xl font-bold uppercase text-[var(--foreground)]">Investment Tiers</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {homepagePackages.map((pkg, idx) => (
+              <div
+                key={idx}
+                className={`relative p-8 rounded-sm flex flex-col justify-between transition-all duration-300 group ${
+                  pkg.popular
+                    ? 'bg-[var(--beige)] border border-[#D4A44B] shadow-lg hover:-translate-y-2'
+                    : 'bg-[var(--beige)]/30 border border-[var(--border-color)] hover:border-[#D4A44B] hover:-translate-y-1'
+                }`}
+              >
+                {pkg.popular && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#D4A44B] text-black font-semibold text-[8px] uppercase tracking-[0.2em] px-3.5 py-1 rounded-sm shadow-sm select-none">
+                    Most Popular
+                  </span>
+                )}
+
+                <div>
+                  <h3 className="font-editorial text-xl font-bold uppercase tracking-wider mb-2 text-[var(--foreground)]">{pkg.name}</h3>
+                  <p className="text-[var(--secondary-text)] text-[11px] leading-relaxed mb-6 font-light">{pkg.desc}</p>
+                  
+                  {/* Price display */}
+                  <div className="text-[var(--foreground)] mb-6 flex items-baseline gap-1">
+                    <span className="text-2xl sm:text-3xl font-bold font-editorial">
+                      {pkg.price > 0 ? `₹${pkg.price.toLocaleString()}` : 'Custom'}
+                    </span>
+                    <span className="text-[var(--secondary-text)] text-[9px] uppercase tracking-wider font-light">
+                      {pkg.price > 0 ? 'INR net' : 'quote'}
+                    </span>
+                  </div>
+
+                  {/* Highlights list */}
+                  <ul className="space-y-3 border-t border-[var(--border-color)] pt-6 mb-8 text-[11px] text-[var(--secondary-text)]">
+                    {pkg.highlights.map((h, hi) => (
+                      <li key={hi} className="flex items-center gap-2">
+                        <Check className="h-3.5 w-3.5 text-[#D4A44B] shrink-0" />
+                        <span>{h}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <Link
+                  href="/book"
+                  className={`text-center text-[9px] uppercase tracking-[0.2em] py-3.5 rounded-sm font-bold transition-all ${
+                    pkg.popular
+                      ? 'bg-[#D4A44B] text-black hover:bg-black hover:text-white'
+                      : 'bg-[var(--foreground)] text-[var(--background)] hover:bg-[#D4A44B] hover:text-black'
+                  }`}
+                >
+                  Book Commission
+                </Link>
+
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12 text-xs text-[var(--secondary-text)] flex items-center justify-center gap-2">
+            <Info className="h-4.5 w-4.5 text-[#D4A44B]" />
+            <span>Need crew customizing? Build a tailored commission pricing inside our <Link href="/pricing" className="text-[#D4A44B] underline font-medium">Interactive Calculator</Link>.</span>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ============================================
+          BOOKING SECTION
+          ============================================ */}
+      <section id="booking-section" className="relative py-24 overflow-hidden bg-[#0a0a0a] border-t border-white/5">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img
             src="/images/booking_bg.png"
-            alt="Luxury Wedding Venue"
-            className="w-full h-full object-cover opacity-20 grayscale"
+            alt="Palace Ground Shoot"
+            className="w-full h-full object-cover opacity-15 select-none pointer-events-none"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#1A1A1A] via-[#1A1A1A]/40 to-[#1A1A1A] pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
         </div>
 
-        <div className="relative z-10 w-full max-w-2xl px-6">
-          <div className="glass-panel p-8 sm:p-12 border border-[#C8A96B]/30 rounded-sm shadow-2xl relative bg-[#F7F2EA]/95 backdrop-blur-md">
-            <span className="text-[10px] uppercase tracking-[0.4em] text-[#C8A96B] font-bold text-center block mb-3">RESERVATIONS</span>
-            <h2 className="font-editorial text-3xl sm:text-5xl font-bold uppercase text-[#1A1A1A] tracking-tight text-center mb-8">
-              Book Consultation
-            </h2>
-
-            {bookingError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-4 rounded-sm mb-6">
-                {bookingError}
-              </div>
-            )}
-
-            {bookingSuccess ? (
-              <div className="text-center py-6">
-                <div className="h-12 w-12 bg-[#C8A96B]/10 border border-[#C8A96B] text-[#C8A96B] rounded-full flex items-center justify-center mb-6 mx-auto animate-bounce">
-                  <Check className="h-6 w-6" />
+        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+            
+            {/* Left Content */}
+            <div className="flex flex-col gap-4">
+              <span className="text-[10px] uppercase tracking-[0.4em] text-[#D4A44B] font-semibold">Let's Create Your Story</span>
+              <h2 className="font-editorial text-4xl sm:text-5xl lg:text-6xl font-bold uppercase text-white leading-tight">
+                Book Your Date
+              </h2>
+              <p className="text-white/40 text-xs sm:text-sm leading-relaxed max-w-sm mt-2 font-light">
+                Our global commission coordinates fill up quickly. File your inquiry below, and our lead producer will connect with you via email or WhatsApp within 12 hours.
+              </p>
+              
+              {/* Feature summary indicators */}
+              <div className="space-y-3 mt-6 border-t border-white/5 pt-6 text-white/60 text-xs font-light">
+                <div className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 bg-[#D4A44B] rounded-full" />
+                  <span>Secure Client Portal Provisioned Instantly</span>
                 </div>
-                <h4 className="font-editorial text-xl font-bold text-[#1A1A1A] mb-2">Reservation Submitted</h4>
-                <p className="text-[#6D6D6D] text-xs leading-relaxed max-w-sm mx-auto">
-                  Our director will review your event parameters and contact you on WhatsApp shortly. Access details are provisioned in your portal!
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={handleBookingSubmit} className="space-y-6 text-[#1A1A1A]">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-[9px] uppercase tracking-[0.25em] text-[#6D6D6D] mb-2 font-bold">Your Name</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Sophia & Liam"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full bg-[#EFE7DB]/60 border border-[#E5D8C5] focus:border-[#C8A96B] text-[#1A1A1A] p-4 rounded-sm text-xs focus:outline-none placeholder-[#6D6D6D]/45 transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[9px] uppercase tracking-[0.25em] text-[#6D6D6D] mb-2 font-bold">WhatsApp Number</label>
-                    <input
-                      type="tel"
-                      required
-                      placeholder="+91 90496 78380"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="w-full bg-[#EFE7DB]/60 border border-[#E5D8C5] focus:border-[#C8A96B] text-[#1A1A1A] p-4 rounded-sm text-xs focus:outline-none placeholder-[#6D6D6D]/45 transition-colors"
-                    />
-                  </div>
+                <div className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 bg-[#D4A44B] rounded-full" />
+                  <span>Flexible Pre-production Rescheduling</span>
                 </div>
+                <div className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 bg-[#D4A44B] rounded-full" />
+                  <span>Encrypted Gallery High-Res Deliveries</span>
+                </div>
+              </div>
+            </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-[9px] uppercase tracking-[0.25em] text-[#6D6D6D] mb-2 font-bold">Date</label>
-                    <input
-                      type="date"
-                      required
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      className="w-full bg-[#EFE7DB]/60 border border-[#E5D8C5] focus:border-[#C8A96B] text-[#1A1A1A] p-4 rounded-sm text-xs focus:outline-none transition-colors"
-                    />
+            {/* Right: Glassmorphism Form container */}
+            <div className="bg-neutral-900/40 backdrop-blur-xl border border-white/10 p-8 sm:p-10 rounded-sm">
+              {bookingSuccess ? (
+                <div className="text-center py-12 flex flex-col items-center justify-center">
+                  <div className="h-14 w-14 border-2 border-[#D4A44B] rounded-full flex items-center justify-center text-[#D4A44B] mb-6 animate-bounce">
+                    <Check className="h-8 w-8" />
                   </div>
-                  <div>
-                    <label className="block text-[9px] uppercase tracking-[0.25em] text-[#6D6D6D] mb-2 font-bold">Event Venue</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Udaipur, Como"
-                      value={venue}
-                      onChange={(e) => setVenue(e.target.value)}
-                      className="w-full bg-[#EFE7DB]/60 border border-[#E5D8C5] focus:border-[#C8A96B] text-[#1A1A1A] p-4 rounded-sm text-xs focus:outline-none placeholder-[#6D6D6D]/45 transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[9px] uppercase tracking-[0.25em] text-[#6D6D6D] mb-2 font-bold">Package Select</label>
-                    <select
-                      value={packageType}
-                      onChange={(e) => setPackageType(e.target.value)}
-                      className="w-full bg-[#EFE7DB] border border-[#E5D8C5] focus:border-[#C8A96B] text-[#1A1A1A] p-4 rounded-sm text-xs focus:outline-none transition-colors"
+                  <h3 className="font-editorial text-2xl font-bold text-white mb-3 uppercase">Reservation Registered</h3>
+                  <p className="text-white/50 text-xs leading-relaxed max-w-sm mb-8">
+                    Your details are recorded. To speed up synchronization and coordinate directly with Devan Singh, click below to chat on WhatsApp.
+                  </p>
+                  
+                  <div className="flex flex-col gap-3 w-full">
+                    <a
+                      href={getWhatsAppLink()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full bg-[#D4A44B] hover:bg-[#c4943b] text-black font-bold text-[10px] uppercase tracking-[0.25em] py-4 rounded-sm flex items-center justify-center gap-2 shadow-lg"
                     >
-                      <option value="Luxury Wedding Stories">Wedding Stories</option>
-                      <option value="Pre-Wedding Cinematic Films">Pre-Wedding Shoots</option>
-                      <option value="Cinematic Films">Cinematic Films</option>
-                      <option value="Destination Weddings">Destination Weddings</option>
-                      <option value="Corporate Events">Corporate Events</option>
-                      <option value="Luxury Albums">Luxury Albums</option>
-                    </select>
+                      Chat on WhatsApp <Send className="h-4 w-4" />
+                    </a>
+                    
+                    <button
+                      onClick={() => {
+                        setBookingSuccess(false);
+                        setName('');
+                        setPhone('');
+                        setDate('');
+                        setVenue('');
+                        setMessage('');
+                      }}
+                      className="text-[9px] uppercase tracking-widest text-white/50 hover:text-white mt-2 font-semibold"
+                    >
+                      Send Another Inquiry
+                    </button>
                   </div>
                 </div>
+              ) : (
+                <form onSubmit={handleBookingSubmit} className="space-y-5">
+                  {bookingError && (
+                    <div className="text-red-400 text-xs p-3 border border-red-500/30 bg-red-500/10 rounded-sm">
+                      {bookingError}
+                    </div>
+                  )}
 
-                <div>
-                  <label className="block text-[9px] uppercase tracking-[0.25em] text-[#6D6D6D] mb-2 font-bold">Requirements Message</label>
-                  <textarea
-                    rows={4}
-                    required
-                    placeholder="Describe your wedding details, guest count, style preferences..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    className="w-full bg-[#EFE7DB]/60 border border-[#E5D8C5] focus:border-[#C8A96B] text-[#1A1A1A] p-4 rounded-sm text-xs focus:outline-none placeholder-[#6D6D6D]/45 transition-colors resize-none"
-                  />
-                </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[8px] uppercase tracking-widest text-white/40 mb-1 font-semibold">Your Name</label>
+                      <input
+                        type="text" required value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="e.g. Sophia & Liam"
+                        className="bg-neutral-950 border border-white/10 focus:border-[#D4A44B] text-white text-xs py-3 px-3.5 outline-none placeholder-white/10 transition-colors w-full rounded-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[8px] uppercase tracking-widest text-white/40 mb-1 font-semibold">WhatsApp Phone</label>
+                      <input
+                        type="tel" required value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="e.g. +91 90496 78380"
+                        className="bg-neutral-950 border border-white/10 focus:border-[#D4A44B] text-white text-xs py-3 px-3.5 outline-none placeholder-white/10 transition-colors w-full rounded-sm"
+                      />
+                    </div>
+                  </div>
 
-                <button
-                  type="submit"
-                  disabled={bookingSubmitting}
-                  className="w-full text-xs uppercase tracking-[0.25em] bg-[#C8A96B] text-[#F7F2EA] font-semibold py-4 rounded-sm shadow-md hover:bg-[#1A1A1A] transition-all flex items-center justify-center gap-2.5 cursor-pointer"
-                >
-                  {bookingSubmitting ? 'Submitting...' : 'Book Now'} <Send className="h-4 w-4" />
-                </button>
-              </form>
-            )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[8px] uppercase tracking-widest text-white/40 mb-1 font-semibold">Ceremony Date</label>
+                      <input
+                        type="date" required value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        className="bg-neutral-950 border border-white/10 focus:border-[#D4A44B] text-white text-xs py-3 px-3.5 outline-none transition-colors w-full rounded-sm [color-scheme:dark]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[8px] uppercase tracking-widest text-white/40 mb-1 font-semibold">Event Narrative</label>
+                      <select
+                        value={eventType}
+                        onChange={(e) => setEventType(e.target.value)}
+                        className="bg-neutral-950 border border-white/10 focus:border-[#D4A44B] text-white/70 text-xs py-3 px-3 w-full rounded-sm outline-none cursor-pointer"
+                      >
+                        <option>Luxury Wedding Stories</option>
+                        <option>Pre-Wedding Cinematic Films</option>
+                        <option>High-Fashion Engagements</option>
+                        <option>Cinematic Reels & Socials</option>
+                        <option>Corporate Narrative</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[8px] uppercase tracking-widest text-white/40 mb-1 font-semibold">Destination Venue</label>
+                      <input
+                        type="text" required value={venue}
+                        onChange={(e) => setVenue(e.target.value)}
+                        placeholder="e.g. Udaipur Palace, India"
+                        className="bg-neutral-950 border border-white/10 focus:border-[#D4A44B] text-white text-xs py-3 px-3.5 outline-none placeholder-white/10 transition-colors w-full rounded-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[8px] uppercase tracking-widest text-white/40 mb-1 font-semibold">Investment Tier</label>
+                      <select
+                        value={packageType}
+                        onChange={(e) => setPackageType(e.target.value)}
+                        className="bg-neutral-950 border border-white/10 focus:border-[#D4A44B] text-white/70 text-xs py-3 px-3 w-full rounded-sm outline-none cursor-pointer"
+                      >
+                        <option>Premium Wedding Package</option>
+                        <option>Essential Plan</option>
+                        <option>Luxury Commission</option>
+                        <option>Destination Bespoke</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[8px] uppercase tracking-widest text-white/40 mb-1 font-semibold">Message & Details</label>
+                    <textarea
+                      rows={3} required value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder="Detail your requirements or styling questions..."
+                      className="bg-neutral-950 border border-white/10 focus:border-[#D4A44B] text-white text-xs py-3 px-3.5 outline-none placeholder-white/10 transition-colors w-full resize-none rounded-sm"
+                    />
+                  </div>
+
+                  <button
+                    type="submit" disabled={bookingSubmitting}
+                    className="w-full bg-[#D4A44B] text-black font-bold text-[10px] uppercase tracking-[0.25em] py-4 hover:bg-[#c4943b] transition-all flex items-center justify-center gap-2 rounded-sm cursor-pointer mt-2"
+                  >
+                    {bookingSubmitting ? 'Registering In DB...' : 'Reserve Consultation'} <Send className="h-3.5 w-3.5" />
+                  </button>
+                </form>
+              )}
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* Dynamic Cinematic Video Player Modal */}
-      {activeVideoUrl && (
-        <div
-          className="fixed inset-0 bg-black/99 z-[9999] flex items-center justify-center p-6"
-          onClick={() => setActiveVideoUrl(null)}
-        >
-          <button
-            onClick={() => setActiveVideoUrl(null)}
-            className="absolute top-6 right-6 h-12 w-12 bg-[#F7F2EA] text-[#1A1A1A] rounded-full flex items-center justify-center hover:bg-[#C8A96B] font-bold text-xl shadow-2xl cursor-pointer"
-            title="Close Player"
+      {/* ============================================
+          DYNAMIC PORTFOLIO LIGHTBOX
+          ============================================ */}
+      <AnimatePresence>
+        {lightboxItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center p-6"
+            onClick={() => setLightboxItem(null)}
           >
-            &times;
-          </button>
-          
-          <div className="w-full max-w-5xl aspect-video bg-black rounded-sm overflow-hidden shadow-2xl border border-[#C8A96B]/20" onClick={(e) => e.stopPropagation()}>
-            <video
-              src={activeVideoUrl}
-              controls
-              autoPlay
-              className="w-full h-full object-contain"
-            />
-          </div>
-        </div>
-      )}
+            <button
+              onClick={() => setLightboxItem(null)}
+              className="absolute top-6 right-6 h-10 w-10 bg-white/10 hover:bg-[#D4A44B] rounded-full flex items-center justify-center text-white text-xl transition-colors cursor-pointer focus:outline-none"
+            >
+              ×
+            </button>
+            <div
+              className="w-full max-w-4xl max-h-[85vh] bg-black rounded-sm overflow-hidden shadow-2xl border border-[#D4A44B]/20 relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img src={lightboxItem.mediaUrl} alt={lightboxItem.title} className="w-full h-full max-h-[85vh] object-contain mx-auto" />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-6 text-left">
+                <span className="text-[#D4A44B] text-[8px] uppercase tracking-[0.2em] font-semibold">{lightboxItem.category?.name}</span>
+                <h4 className="font-editorial text-lg text-white font-bold mt-1">{lightboxItem.title}</h4>
+                <p className="text-white/60 text-xs mt-1 font-light">{lightboxItem.description}</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Reel Trailer Modal */}
-      {isPlayingReel && (
-        <div
-          className="fixed inset-0 bg-black/99 z-[9999] flex items-center justify-center p-6"
-          onClick={() => setIsPlayingReel(false)}
-        >
-          <button
-            onClick={() => setIsPlayingReel(false)}
-            className="absolute top-6 right-6 h-12 w-12 bg-[#F7F2EA] text-[#1A1A1A] rounded-full flex items-center justify-center hover:bg-[#C8A96B] font-bold text-xl shadow-2xl cursor-pointer"
-            title="Close Player"
+      {/* ============================================
+          CINEMATIC VIDEO OVERLAY MODAL
+          ============================================ */}
+      <AnimatePresence>
+        {activeVideo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center p-6"
+            onClick={() => setActiveVideo(null)}
           >
-            &times;
-          </button>
-          
-          <div className="w-full max-w-5xl aspect-video bg-black rounded-sm overflow-hidden shadow-2xl border border-[#C8A96B]/20" onClick={(e) => e.stopPropagation()}>
-            <video
-              src="https://assets.mixkit.co/videos/preview/mixkit-newlyweds-slow-dancing-in-a-hallway-with-glowing-lights-40089-large.mp4"
-              controls
-              autoPlay
-              className="w-full h-full object-cover"
-            />
-          </div>
-        </div>
-      )}
+            <button
+              onClick={() => setActiveVideo(null)}
+              className="absolute top-6 right-6 h-10 w-10 bg-white/10 hover:bg-[#D4A44B] rounded-full flex items-center justify-center text-white text-xl transition-colors cursor-pointer focus:outline-none"
+            >
+              ×
+            </button>
+            <div
+              className="w-full max-w-5xl aspect-video bg-black rounded-sm overflow-hidden shadow-2xl border border-white/10"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <video src={activeVideo} controls autoPlay className="w-full h-full object-contain" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

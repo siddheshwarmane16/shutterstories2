@@ -49,7 +49,7 @@ export default function ServicesPage() {
   ];
 
   return (
-    <div className="relative min-h-screen py-24 bg-[#F7F2EA] text-[#1F1F1F]">
+    <div className="relative min-h-screen py-32 bg-[var(--background)] text-[var(--foreground)] transition-colors duration-500">
       {/* Fullscreen Video Background */}
       <div className="absolute inset-0 z-0">
         <video
@@ -60,7 +60,7 @@ export default function ServicesPage() {
           className="h-full w-full object-cover opacity-5"
           src="https://assets.mixkit.co/videos/preview/mixkit-photographer-taking-photos-of-a-bride-and-groom-40114-large.mp4"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#F7F2EA] via-[#F7F2EA]/95 to-[#F7F2EA] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[var(--background)] via-[var(--background)]/95 to-[var(--background)] pointer-events-none" />
       </div>
 
       <div className="mx-auto max-w-7xl px-6 lg:px-8 relative z-10">
@@ -68,10 +68,10 @@ export default function ServicesPage() {
         {/* Page Header */}
         <div className="text-center max-w-3xl mx-auto mb-28">
           <span className="text-[10px] uppercase tracking-[0.4em] text-[#C8A96B] font-bold">OUR OFFERINGS</span>
-          <h1 className="font-editorial text-4xl sm:text-7xl font-bold tracking-tight uppercase mt-3 mb-8 text-[#1F1F1F]">
+          <h1 className="font-editorial text-4xl sm:text-7xl font-bold tracking-tight uppercase mt-3 mb-8 text-[var(--foreground)]">
             The Mediums
           </h1>
-          <p className="text-[#5C4435] text-xs sm:text-sm tracking-widest leading-relaxed font-light">
+          <p className="text-[var(--secondary-text)] text-xs sm:text-sm tracking-widest leading-relaxed font-light">
             We combine classic photojournalistic methods with high-fashion portraiture and documentary cinema to record families, weddings, and commercial narratives.
           </p>
         </div>
@@ -83,7 +83,7 @@ export default function ServicesPage() {
             return (
               <div
                 key={idx}
-                className="relative group p-8 sm:p-12 rounded-sm overflow-hidden border border-[#5C4435]/15 flex flex-col justify-between hover:border-[#C8A96B] transition-all duration-500 min-h-[420px] bg-[#EFE7DB]/30 shadow-md"
+                className="relative group p-8 sm:p-12 rounded-sm overflow-hidden border border-[var(--border-color)] flex flex-col justify-between hover:border-[#C8A96B] transition-all duration-500 min-h-[420px] bg-[var(--beige)]/30 shadow-md"
               >
                 {/* Media Background */}
                 <div className="absolute inset-0 z-0">
@@ -104,22 +104,22 @@ export default function ServicesPage() {
                     />
                   )}
                   {/* Vignette Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#F7F2EA] via-[#F7F2EA]/95 to-transparent z-10 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--background)] via-[var(--background)]/95 to-transparent z-10 pointer-events-none" />
                 </div>
 
                 {/* Card Contents */}
                 <div className="relative z-20">
-                  <div className="h-12 w-12 bg-[#F7F2EA]/90 border border-[#C8A96B]/30 rounded-sm flex items-center justify-center text-[#C8A96B] mb-8 shadow-sm">
+                  <div className="h-12 w-12 bg-[var(--background)]/90 border border-[#C8A96B]/30 rounded-sm flex items-center justify-center text-[#C8A96B] mb-8 shadow-sm">
                     <Icon className="h-5.5 w-5.5" />
                   </div>
-                  <h3 className="font-editorial text-2xl font-bold uppercase text-[#1F1F1F] mb-4 tracking-wide group-hover:text-[#C8A96B] transition-colors">
+                  <h3 className="font-editorial text-2xl font-bold uppercase text-[var(--foreground)] mb-4 tracking-wide group-hover:text-[#C8A96B] transition-colors">
                     {svc.title}
                   </h3>
-                  <p className="text-[#5C4435] text-xs sm:text-sm leading-relaxed mb-8 font-light tracking-wide max-w-md">
+                  <p className="text-[var(--secondary-text)] text-xs sm:text-sm leading-relaxed mb-8 font-light tracking-wide max-w-md">
                     {svc.desc}
                   </p>
                   
-                  <ul className="grid grid-cols-2 gap-4 mb-8 text-[11px] text-[#5C4435]/70 border-t border-[#5C4435]/10 pt-8">
+                  <ul className="grid grid-cols-2 gap-4 mb-8 text-[11px] text-[var(--secondary-text)]/70 border-t border-[var(--border-color)] pt-8">
                     {svc.bullets.map((b, bidx) => (
                       <li key={bidx} className="flex items-center gap-2">
                         <span className="h-1.5 w-1.5 bg-[#C8A96B] rounded-full shrink-0" />
@@ -131,7 +131,7 @@ export default function ServicesPage() {
 
                 <Link
                   href="/book"
-                  className="relative z-20 inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.2em] text-[#C8A96B] hover:text-[#1F1F1F] transition-all mt-4 group font-semibold self-start"
+                  className="relative z-20 inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.2em] text-[#C8A96B] hover:text-[var(--foreground)] transition-all mt-4 group font-semibold self-start"
                 >
                   Inquire For Details
                   <ArrowRight className="h-4.5 w-4.5 transition-transform group-hover:translate-x-1" />
@@ -141,7 +141,7 @@ export default function ServicesPage() {
           })}
 
           {/* Custom Bespoke Panel */}
-          <div className="relative p-8 sm:p-12 rounded-sm overflow-hidden border border-[#C8A96B]/30 flex flex-col justify-between min-h-[420px] bg-[#EFE7DB]/45 shadow-md">
+          <div className="relative p-8 sm:p-12 rounded-sm overflow-hidden border border-[#C8A96B]/30 flex flex-col justify-between min-h-[420px] bg-[var(--beige)]/45 shadow-md">
             {/* Background image overlay */}
             <div className="absolute inset-0 z-0">
               <img
@@ -149,23 +149,23 @@ export default function ServicesPage() {
                 src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=800"
                 alt="Bespoke visual production camera"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#F7F2EA] via-[#F7F2EA]/95 to-transparent z-10 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--background)] via-[var(--background)]/95 to-transparent z-10 pointer-events-none" />
             </div>
 
             <div className="relative z-20">
-              <span className="bg-[#C8A96B] text-[#F7F2EA] text-[9px] uppercase tracking-[0.25em] px-3.5 py-1.5 font-bold rounded-sm shadow-sm">
+              <span className="bg-[#C8A96B] text-black text-[9px] uppercase tracking-[0.25em] px-3.5 py-1.5 font-bold rounded-sm shadow-sm">
                 Bespoke commissions
               </span>
-              <h3 className="font-editorial text-2xl font-bold uppercase mt-8 mb-4 text-[#1F1F1F] tracking-wide">
+              <h3 className="font-editorial text-2xl font-bold uppercase mt-8 mb-4 text-[var(--foreground)] tracking-wide">
                 Tailored Visual Legacies
               </h3>
-              <p className="text-[#5C4435] text-xs sm:text-sm leading-relaxed mb-8 font-light tracking-wide">
+              <p className="text-[var(--secondary-text)] text-xs sm:text-sm leading-relaxed mb-8 font-light tracking-wide">
                 Do you have a unique international destination wedding or custom multi-day family history project? Our lead director Devan is available for bespoke commissions globally. We construct completely customized schedules, crew allocations, and album styles.
               </p>
             </div>
             <Link
               href="/contact"
-              className="relative z-20 text-center text-xs uppercase tracking-[0.2em] bg-[#1F1F1F] text-[#F7F2EA] font-semibold py-4.5 rounded-sm hover:bg-[#C8A96B] hover:text-[#1F1F1F] transition-all shadow-md"
+              className="relative z-20 text-center text-xs uppercase tracking-[0.2em] bg-[var(--foreground)] text-[var(--background)] font-semibold py-4.5 rounded-sm hover:bg-[#C8A96B] hover:text-black transition-all shadow-md"
             >
               Initiate Consultation
             </Link>

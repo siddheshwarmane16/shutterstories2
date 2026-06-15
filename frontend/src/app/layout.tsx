@@ -59,7 +59,24 @@ export default function RootLayout({
       lang="en"
       className={`${playfair.variable} ${inter.variable} ${cormorant.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-[#F7F2EA] text-[#1A1A1A] selection:bg-[#C8A96B] selection:text-[#F7F2EA]">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (localStorage.getItem('theme') === 'dark') {
+                  document.documentElement.classList.add('dark');
+                } else if (localStorage.getItem('theme') === 'light') {
+                  document.documentElement.classList.remove('dark');
+                } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                  document.documentElement.classList.add('dark');
+                }
+              } catch (_) {}
+            `,
+          }}
+        />
+      </head>
+      <body className="min-h-full selection:bg-[#C8A96B] selection:text-[#F7F2EA]">
         {children}
       </body>
     </html>

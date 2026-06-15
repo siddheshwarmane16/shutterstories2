@@ -83,7 +83,7 @@ export default function PortfolioPage() {
   };
 
   return (
-    <div className="relative min-h-screen py-24 overflow-hidden bg-[#F7F2EA] text-[#1F1F1F]">
+    <div className="relative min-h-screen py-32 overflow-hidden bg-[var(--background)] text-[var(--foreground)] transition-colors duration-500">
       {/* Fullscreen Video Background */}
       <div className="absolute inset-0 z-0">
         <video
@@ -94,7 +94,7 @@ export default function PortfolioPage() {
           className="h-full w-full object-cover opacity-5"
           src="https://assets.mixkit.co/videos/preview/mixkit-photographer-taking-photos-of-a-bride-and-groom-40114-large.mp4"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#F7F2EA] via-[#F7F2EA]/95 to-[#F7F2EA] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[var(--background)] via-[var(--background)]/95 to-[var(--background)] pointer-events-none" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
@@ -102,25 +102,25 @@ export default function PortfolioPage() {
       {/* Editorial Header */}
       <div className="text-center max-w-2xl mx-auto mb-16">
         <span className="text-[10px] uppercase tracking-[0.4em] text-[#C8A96B] font-bold">VISUAL ARCHIVE</span>
-        <h1 className="font-editorial text-4xl sm:text-6xl font-bold tracking-tight uppercase mt-2 mb-6">
+        <h1 className="font-editorial text-4xl sm:text-6xl font-bold tracking-tight uppercase mt-2 mb-6 text-[var(--foreground)]">
           The Portfolio
         </h1>
-        <p className="text-[#5C4435] text-xs tracking-wide leading-relaxed font-light">
+        <p className="text-[var(--secondary-text)] text-xs tracking-wide leading-relaxed font-light">
           A curated selection of editorial photographs and cinematic highlights captured at destination celebrations worldwide.
         </p>
       </div>
 
       {/* Filter Options Panel */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12 border-b border-[#5C4435]/10 pb-8">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12 border-b border-[var(--border-color)] pb-8">
         
         {/* Category Tabs */}
         <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto py-2 scrollbar-none">
           <button
             onClick={() => setSelectedCategory('')}
-            className={`text-[9px] uppercase tracking-[0.25em] py-2.5 px-5 rounded-sm border shrink-0 transition-all ${
+            className={`text-[9px] uppercase tracking-[0.25em] py-2.5 px-5 rounded-sm border shrink-0 transition-all cursor-pointer ${
               selectedCategory === ''
-                ? 'bg-[#C8A96B] border-[#C8A96B] text-[#F7F2EA] font-semibold'
-                : 'border-[#5C4435]/15 text-[#5C4435]/70 hover:border-[#C8A96B]'
+                ? 'bg-[#C8A96B] border-[#C8A96B] text-black font-bold'
+                : 'border-[var(--border-color)] text-[var(--secondary-text)]/70 hover:border-[#C8A96B]'
             }`}
           >
             All Stories
@@ -129,10 +129,10 @@ export default function PortfolioPage() {
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.slug)}
-              className={`text-[9px] uppercase tracking-[0.25em] py-2.5 px-5 rounded-sm border shrink-0 transition-all ${
+              className={`text-[9px] uppercase tracking-[0.25em] py-2.5 px-5 rounded-sm border shrink-0 transition-all cursor-pointer ${
                 selectedCategory === cat.slug
-                  ? 'bg-[#C8A96B] border-[#C8A96B] text-[#F7F2EA] font-semibold'
-                  : 'border-[#5C4435]/15 text-[#5C4435]/70 hover:border-[#C8A96B]'
+                  ? 'bg-[#C8A96B] border-[#C8A96B] text-black font-bold'
+                  : 'border-[var(--border-color)] text-[var(--secondary-text)]/70 hover:border-[#C8A96B]'
               }`}
             >
               {cat.name} ({cat._count?.items || 0})
@@ -142,7 +142,7 @@ export default function PortfolioPage() {
 
         {/* Search Bar */}
         <div className="relative w-full md:w-80">
-          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#5C4435]/40">
+          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--secondary-text)]/40">
             <Search className="h-4 w-4" />
           </span>
           <input
@@ -150,7 +150,7 @@ export default function PortfolioPage() {
             placeholder="Search weddings, destinations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#EFE7DB]/60 border border-[#5C4435]/15 hover:border-[#C8A96B] focus:border-[#C8A96B] rounded-sm py-2.5 pl-10 pr-4 text-xs tracking-wide text-[#1F1F1F] placeholder-[#5C4435]/40 focus:outline-none transition-colors"
+            className="w-full bg-[var(--beige)] border border-[var(--border-color)] hover:border-[#C8A96B] focus:border-[#C8A96B] rounded-sm py-2.5 pl-10 pr-4 text-xs tracking-wide text-[var(--foreground)] placeholder-[var(--secondary-text)]/40 focus:outline-none transition-colors"
           />
         </div>
 
@@ -160,11 +160,11 @@ export default function PortfolioPage() {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-40 gap-4">
           <div className="h-8 w-8 border-2 border-[#C8A96B] border-t-transparent rounded-full animate-spin" />
-          <span className="text-[9px] uppercase tracking-[0.2em] text-[#5C4435]/50">Compiling gallery...</span>
+          <span className="text-[9px] uppercase tracking-[0.2em] text-[var(--secondary-text)]/50">Compiling gallery...</span>
         </div>
       ) : items.length === 0 ? (
-        <div className="text-center py-40 border border-dashed border-[#5C4435]/15 rounded-sm">
-          <span className="text-xs uppercase tracking-[0.2em] text-[#5C4435]/40">No portfolio records found</span>
+        <div className="text-center py-40 border border-dashed border-[var(--border-color)] rounded-sm">
+          <span className="text-xs uppercase tracking-[0.2em] text-[var(--secondary-text)]/40">No portfolio records found</span>
         </div>
       ) : (
         /* CSS columns masonry layout - Editorial Spacing */
@@ -176,7 +176,7 @@ export default function PortfolioPage() {
                 setActiveItem(item);
                 setZoomScale(1);
               }}
-              className="break-inside-avoid group cursor-pointer relative overflow-hidden border border-[#5C4435]/10 rounded-sm bg-[#EFE7DB]/30 shadow-sm"
+              className="break-inside-avoid group cursor-pointer relative overflow-hidden border border-[var(--border-color)] rounded-sm bg-[var(--beige)]/30 shadow-sm"
             >
               {item.mediaType === 'VIDEO' ? (
                 <div className="relative aspect-[9/16] bg-neutral-900">
@@ -189,7 +189,7 @@ export default function PortfolioPage() {
                     playsInline
                   />
                   <div className="absolute inset-0 flex items-center justify-center z-10">
-                    <span className="h-12 w-12 bg-black/60 border border-white/20 rounded-full flex items-center justify-center text-[#C8A96B] group-hover:bg-[#C8A96B] group-hover:text-[#1F1F1F] transition-colors">
+                    <span className="h-12 w-12 bg-black/60 border border-white/20 rounded-full flex items-center justify-center text-[#C8A96B] group-hover:bg-[#C8A96B] group-hover:text-black transition-colors">
                       <Play className="h-4.5 w-4.5 fill-current ml-0.5" />
                     </span>
                   </div>
@@ -206,12 +206,12 @@ export default function PortfolioPage() {
               )}
 
               {/* Hover Caption Details */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#1F1F1F]/90 via-[#1F1F1F]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
                 <span className="text-[#C8A96B] text-[9px] uppercase tracking-[0.25em] font-semibold mb-1">
                   {item.category?.name}
                 </span>
-                <h3 className="font-editorial text-lg font-bold text-[#F7F2EA] mb-1">{item.title}</h3>
-                <p className="text-[#F7F2EA]/80 text-[10px] leading-relaxed line-clamp-2">{item.description}</p>
+                <h3 className="font-editorial text-lg font-bold text-white mb-1">{item.title}</h3>
+                <p className="text-white/80 text-[10px] leading-relaxed line-clamp-2">{item.description}</p>
               </div>
             </div>
           ))}
@@ -222,7 +222,7 @@ export default function PortfolioPage() {
       {activeItem && (
         <div
           ref={lightboxRef}
-          className="fixed inset-0 bg-[#F7F2EA]/98 z-[9999] flex flex-col justify-between"
+          className="fixed inset-0 bg-[var(--background)]/98 z-[9999] flex flex-col justify-between"
           onClick={() => {
             setActiveItem(null);
             setIsFullscreen(false);
@@ -230,41 +230,41 @@ export default function PortfolioPage() {
         >
           {/* Top Panel Actions */}
           <div
-            className="flex items-center justify-between px-6 py-4 bg-gradient-to-b from-[#F7F2EA] to-transparent z-10 border-b border-[#5C4435]/15"
+            className="flex items-center justify-between px-6 py-4 bg-gradient-to-b from-[var(--background)] to-transparent z-10 border-b border-[var(--border-color)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col">
               <span className="text-[#C8A96B] text-[9px] uppercase tracking-[0.25em] font-semibold">
                 {activeItem.category?.name}
               </span>
-              <h2 className="font-editorial text-lg text-[#1F1F1F] font-bold">{activeItem.title}</h2>
+              <h2 className="font-editorial text-lg text-[var(--foreground)] font-bold">{activeItem.title}</h2>
             </div>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setZoomScale((z) => Math.max(0.5, z - 0.25))}
-                className="h-10 w-10 border border-[#5C4435]/20 rounded-full flex items-center justify-center text-[#1F1F1F]/80 hover:bg-[#EFE7DB] hover:text-[#1F1F1F] transition-all"
+                className="h-10 w-10 border border-[var(--border-color)] rounded-full flex items-center justify-center text-[var(--foreground)]/80 hover:bg-[var(--beige)] hover:text-[var(--foreground)] transition-all cursor-pointer"
                 title="Zoom Out"
               >
                 <ZoomOut className="h-4.5 w-4.5" />
               </button>
               <button
                 onClick={() => setZoomScale((z) => Math.min(3, z + 0.25))}
-                className="h-10 w-10 border border-[#5C4435]/20 rounded-full flex items-center justify-center text-[#1F1F1F]/80 hover:bg-[#EFE7DB] hover:text-[#1F1F1F] transition-all"
+                className="h-10 w-10 border border-[var(--border-color)] rounded-full flex items-center justify-center text-[var(--foreground)]/80 hover:bg-[var(--beige)] hover:text-[var(--foreground)] transition-all cursor-pointer"
                 title="Zoom In"
               >
                 <ZoomIn className="h-4.5 w-4.5" />
               </button>
               <button
                 onClick={toggleFullscreen}
-                className="h-10 w-10 border border-[#5C4435]/20 rounded-full flex items-center justify-center text-[#1F1F1F]/80 hover:bg-[#EFE7DB] hover:text-[#1F1F1F] transition-all"
+                className="h-10 w-10 border border-[var(--border-color)] rounded-full flex items-center justify-center text-[var(--foreground)]/80 hover:bg-[var(--beige)] hover:text-[var(--foreground)] transition-all cursor-pointer"
                 title="Fullscreen Toggle"
               >
                 <Maximize2 className="h-4.5 w-4.5" />
               </button>
               <button
                 onClick={() => handleDownload(activeItem)}
-                className="h-10 w-10 border border-[#5C4435]/20 rounded-full flex items-center justify-center text-[#1F1F1F]/80 hover:bg-[#EFE7DB] hover:text-[#1F1F1F] transition-all"
+                className="h-10 w-10 border border-[var(--border-color)] rounded-full flex items-center justify-center text-[var(--foreground)]/80 hover:bg-[var(--beige)] hover:text-[var(--foreground)] transition-all cursor-pointer"
                 title="Download High Res"
               >
                 <Download className="h-4.5 w-4.5" />
@@ -274,10 +274,10 @@ export default function PortfolioPage() {
                   setActiveItem(null);
                   setIsFullscreen(false);
                 }}
-                className="h-10 w-10 bg-[#1F1F1F] text-[#F7F2EA] rounded-full flex items-center justify-center hover:bg-[#C8A96B] hover:text-[#1F1F1F] transition-all"
+                className="h-10 bg-black text-[#F7F2EA] px-4 rounded-full flex items-center justify-center hover:bg-[#C8A96B] hover:text-black transition-all cursor-pointer"
                 title="Close Gallery"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5 mr-1" /> Close
               </button>
             </div>
           </div>
@@ -308,10 +308,10 @@ export default function PortfolioPage() {
 
           {/* Bottom Panel Info */}
           <div
-            className="text-center px-6 py-6 bg-gradient-to-t from-[#F7F2EA] to-transparent z-10 border-t border-[#5C4435]/15"
+            className="text-center px-6 py-6 bg-gradient-to-t from-[var(--background)] to-transparent z-10 border-t border-[var(--border-color)]"
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="text-[#5C4435] text-xs max-w-xl mx-auto leading-relaxed">
+            <p className="text-[var(--secondary-text)] text-xs max-w-xl mx-auto leading-relaxed">
               {activeItem.description}
             </p>
           </div>

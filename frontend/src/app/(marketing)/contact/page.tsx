@@ -26,7 +26,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="relative min-h-screen py-24 overflow-hidden">
+    <div className="relative min-h-screen bg-[var(--background)] text-[var(--foreground)] py-32 overflow-hidden transition-colors duration-500">
       {/* Fullscreen Video Background */}
       <div className="absolute inset-0 z-0">
         <video
@@ -37,7 +37,7 @@ export default function ContactPage() {
           className="h-full w-full object-cover opacity-[0.08]"
           src="https://assets.mixkit.co/videos/preview/mixkit-newlyweds-slow-dancing-in-a-hallway-with-glowing-lights-40089-large.mp4"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#F7F2EA]/85 via-[#F7F2EA]/95 to-[#F7F2EA] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[var(--background)]/85 via-[var(--background)]/95 to-[var(--background)] pointer-events-none" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
@@ -45,10 +45,10 @@ export default function ContactPage() {
       {/* Page Header */}
       <div className="text-center max-w-2xl mx-auto mb-20">
         <span className="text-xs uppercase tracking-[0.3em] text-[#C8A96B] font-semibold">Get In Touch</span>
-        <h1 className="font-editorial text-4xl sm:text-6xl font-bold tracking-tight uppercase mt-2 mb-6 text-[#1A1A1A]">
+        <h1 className="font-editorial text-4xl sm:text-6xl font-bold tracking-tight uppercase mt-2 mb-6 text-[var(--foreground)]">
           The Contact
         </h1>
-        <p className="text-[#6D6D6D] text-xs tracking-wide leading-relaxed font-light">
+        <p className="text-[var(--secondary-text)] text-xs tracking-wide leading-relaxed font-light">
           Whether you are planning a destination ceremony in Rajasthan or an intimate session in Europe, we’d love to co-create your visual history.
         </p>
       </div>
@@ -59,38 +59,38 @@ export default function ContactPage() {
         {/* Info Column */}
         <div className="lg:col-span-5 flex flex-col gap-8">
           <div>
-            <h2 className="font-editorial text-2xl uppercase tracking-wider mb-4 text-[#1A1A1A]">The Studio Coordinates</h2>
-            <p className="text-[#6D6D6D] text-xs leading-relaxed font-light mb-6">
+            <h2 className="font-editorial text-2xl uppercase tracking-wider mb-4 text-[var(--foreground)]">The Studio Coordinates</h2>
+            <p className="text-[var(--secondary-text)] text-xs leading-relaxed font-light mb-6">
               Our principal team operates from Colaba, Mumbai, but is fully mobile and travels globally for commissions.
             </p>
           </div>
 
-          <ul className="space-y-6 text-xs text-[#1A1A1A]/85">
+          <ul className="space-y-6 text-xs text-[var(--foreground)]/85">
             <li className="flex items-center gap-4">
-              <div className="h-10 w-10 border border-[#E5D8C5] rounded-full flex items-center justify-center text-[#C8A96B] shrink-0 bg-[#EFE7DB]/30">
+              <div className="h-10 w-10 border border-[var(--border-color)] rounded-full flex items-center justify-center text-[#C8A96B] shrink-0 bg-[var(--beige)]/30">
                 <Phone className="h-4.5 w-4.5" />
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="text-[#6D6D6D]/60 text-[9px] uppercase tracking-wider font-semibold">Direct Calls</span>
-                <a href="tel:+919049678380" className="hover:text-[#C8A96B] transition-colors font-medium text-[#1A1A1A]">+91 90496 78380</a>
+                <span className="text-[var(--secondary-text)]/60 text-[9px] uppercase tracking-wider font-semibold">Direct Calls</span>
+                <a href="tel:+919049678380" className="hover:text-[#C8A96B] transition-colors font-medium text-[var(--foreground)]">+91 90496 78380</a>
               </div>
             </li>
             <li className="flex items-center gap-4">
-              <div className="h-10 w-10 border border-[#E5D8C5] rounded-full flex items-center justify-center text-[#C8A96B] shrink-0 bg-[#EFE7DB]/30">
+              <div className="h-10 w-10 border border-[var(--border-color)] rounded-full flex items-center justify-center text-[#C8A96B] shrink-0 bg-[var(--beige)]/30">
                 <Mail className="h-4.5 w-4.5" />
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="text-[#6D6D6D]/60 text-[9px] uppercase tracking-wider font-semibold">Inquiries Email</span>
-                <a href="mailto:hello@shutterstories.com" className="hover:text-[#C8A96B] transition-colors font-medium text-[#1A1A1A]">hello@shutterstories.com</a>
+                <span className="text-[var(--secondary-text)]/60 text-[9px] uppercase tracking-wider font-semibold">Inquiries Email</span>
+                <a href="mailto:hello@shutterstories.com" className="hover:text-[#C8A96B] transition-colors font-medium text-[var(--foreground)]">hello@shutterstories.com</a>
               </div>
             </li>
             <li className="flex items-start gap-4">
-              <div className="h-10 w-10 border border-[#E5D8C5] rounded-full flex items-center justify-center text-[#C8A96B] shrink-0 mt-0.5 bg-[#EFE7DB]/30">
+              <div className="h-10 w-10 border border-[var(--border-color)] rounded-full flex items-center justify-center text-[#C8A96B] shrink-0 mt-0.5 bg-[var(--beige)]/30">
                 <MapPin className="h-4.5 w-4.5" />
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="text-[#6D6D6D]/60 text-[9px] uppercase tracking-wider font-semibold">Physical Location</span>
-                <span className="leading-relaxed font-light text-[#1A1A1A]">
+                <span className="text-[var(--secondary-text)]/60 text-[9px] uppercase tracking-wider font-semibold">Physical Location</span>
+                <span className="leading-relaxed font-light text-[var(--foreground)]">
                   Luxury Studio Suite 4B, Colaba Causeway,<br />
                   Mumbai, MH - 400005, India
                 </span>
@@ -99,87 +99,87 @@ export default function ContactPage() {
           </ul>
 
           {/* Location Mock Map Box */}
-          <div className="aspect-[4/3] w-full border border-[#E5D8C5] bg-[#EFE7DB]/60 rounded-sm overflow-hidden relative">
+          <div className="aspect-[4/3] w-full border border-[var(--border-color)] bg-[var(--beige)]/60 rounded-sm overflow-hidden relative">
             <img
               src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=600"
               alt="Mumbai Studio location map mockup"
               className="w-full h-full object-cover opacity-20 grayscale"
             />
-            <div className="absolute inset-0 flex items-center justify-center flex-col gap-2 bg-[#F7F2EA]/20">
+            <div className="absolute inset-0 flex items-center justify-center flex-col gap-2 bg-[var(--background)]/20">
               <MapPin className="h-8 w-8 text-[#C8A96B] animate-bounce" />
-              <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1A1A1A]">Shutter Stories Studio</span>
-              <span className="text-[9px] text-[#6D6D6D] uppercase tracking-widest">Mumbai, Colaba</span>
+              <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[var(--foreground)]">Shutter Stories Studio</span>
+              <span className="text-[9px] text-[var(--secondary-text)] uppercase tracking-widest">Mumbai, Colaba</span>
             </div>
           </div>
         </div>
 
         {/* Form Column */}
-        <div className="lg:col-span-7 bg-[#EFE7DB]/40 backdrop-blur-md border border-[#E5D8C5] p-8 sm:p-12 rounded-sm relative shadow-sm">
+        <div className="lg:col-span-7 bg-[var(--beige)]/40 backdrop-blur-md border border-[var(--border-color)] p-8 sm:p-12 rounded-sm relative shadow-sm">
           
           {submitted ? (
             <div className="text-center py-20 flex flex-col items-center justify-center gap-4">
               <CheckCircle className="h-12 w-12 text-[#C8A96B] animate-pulse" />
-              <h3 className="font-editorial text-2xl uppercase font-bold mt-2 text-[#1A1A1A]">Message Sent</h3>
-              <p className="text-[#6D6D6D] text-xs leading-relaxed max-w-sm">
+              <h3 className="font-editorial text-2xl uppercase font-bold mt-2 text-[var(--foreground)]">Message Sent</h3>
+              <p className="text-[var(--secondary-text)] text-xs leading-relaxed max-w-sm">
                 Thank you! We have received your consultation query. A visual producer will contact you via email shortly.
               </p>
               <button
                 onClick={() => setSubmitted(false)}
-                className="text-xs uppercase tracking-wider text-[#C8A96B] hover:text-[#1A1A1A] transition-colors mt-4"
+                className="text-xs uppercase tracking-wider text-[#C8A96B] hover:text-[var(--foreground)] transition-colors mt-4"
               >
                 Send another message
               </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <h2 className="font-editorial text-2xl uppercase tracking-wider mb-6 text-[#1A1A1A]">Write Us A Message</h2>
+              <h2 className="font-editorial text-2xl uppercase tracking-wider mb-6 text-[var(--foreground)]">Write Us A Message</h2>
 
               <div>
-                <label className="block text-[10px] uppercase tracking-[0.2em] text-[#6D6D6D] mb-2 font-semibold">Your Name</label>
+                <label className="block text-[10px] uppercase tracking-[0.2em] text-[var(--secondary-text)] mb-2 font-semibold">Your Name</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Isabella Rossi"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-[#F7F2EA]/85 border border-[#E5D8C5] focus:border-[#C8A96B] text-[#1A1A1A] p-4 rounded-sm text-sm focus:outline-none placeholder-[#6D6D6D]/45 transition-colors"
+                  className="w-full bg-[var(--background)]/85 border border-[var(--border-color)] focus:border-[#C8A96B] text-[var(--foreground)] p-4 rounded-sm text-sm focus:outline-none placeholder-[var(--secondary-text)]/45 transition-colors"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[10px] uppercase tracking-[0.2em] text-[#6D6D6D] mb-2 font-semibold">Email Coordinates</label>
+                  <label className="block text-[10px] uppercase tracking-[0.2em] text-[var(--secondary-text)] mb-2 font-semibold">Email Coordinates</label>
                   <input
                     type="email"
                     required
                     placeholder="isabella@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-[#F7F2EA]/85 border border-[#E5D8C5] focus:border-[#C8A96B] text-[#1A1A1A] p-4 rounded-sm text-sm focus:outline-none placeholder-[#6D6D6D]/45 transition-colors"
+                    className="w-full bg-[var(--background)]/85 border border-[var(--border-color)] focus:border-[#C8A96B] text-[var(--foreground)] p-4 rounded-sm text-sm focus:outline-none placeholder-[var(--secondary-text)]/45 transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase tracking-[0.2em] text-[#6D6D6D] mb-2 font-semibold">WhatsApp Number</label>
+                  <label className="block text-[10px] uppercase tracking-[0.2em] text-[var(--secondary-text)] mb-2 font-semibold">WhatsApp Number</label>
                   <input
                     type="tel"
                     required
-                    placeholder="+39 333 123456"
+                    placeholder="+91 90496 78380"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full bg-[#F7F2EA]/85 border border-[#E5D8C5] focus:border-[#C8A96B] text-[#1A1A1A] p-4 rounded-sm text-sm focus:outline-none placeholder-[#6D6D6D]/45 transition-colors"
+                    className="w-full bg-[var(--background)]/85 border border-[var(--border-color)] focus:border-[#C8A96B] text-[var(--foreground)] p-4 rounded-sm text-sm focus:outline-none placeholder-[var(--secondary-text)]/45 transition-colors"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] uppercase tracking-[0.2em] text-[#6D6D6D] mb-2 font-semibold">Inquiry Message</label>
+                <label className="block text-[10px] uppercase tracking-[0.2em] text-[var(--secondary-text)] mb-2 font-semibold">Inquiry Message</label>
                 <textarea
                   required
                   rows={5}
                   placeholder="Detail your celebration scale, schedules, specific ideas..."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="w-full bg-[#F7F2EA]/85 border border-[#E5D8C5] focus:border-[#C8A96B] text-[#1A1A1A] p-4 rounded-sm text-sm focus:outline-none placeholder-[#6D6D6D]/45 transition-colors resize-none"
+                  className="w-full bg-[var(--background)]/85 border border-[var(--border-color)] focus:border-[#C8A96B] text-[var(--foreground)] p-4 rounded-sm text-sm focus:outline-none placeholder-[var(--secondary-text)]/45 transition-colors resize-none"
                 />
               </div>
 
@@ -187,7 +187,7 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="text-xs uppercase tracking-[0.2em] bg-[#1A1A1A] text-[#F7F2EA] hover:bg-[#C8A96B] hover:text-[#1A1A1A] font-bold py-4 px-8 rounded-sm transition-all flex items-center gap-2 group cursor-pointer border border-[#1A1A1A] hover:border-[#C8A96B]"
+                  className="text-xs uppercase tracking-[0.2em] bg-[var(--foreground)] text-[var(--background)] hover:bg-[#C8A96B] hover:text-black font-bold py-4 px-8 rounded-sm transition-all flex items-center gap-2 group cursor-pointer border border-[var(--foreground)] hover:border-[#C8A96B]"
                 >
                   {submitting ? 'Transmitting...' : 'Send Message'}{' '}
                   <Send className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
