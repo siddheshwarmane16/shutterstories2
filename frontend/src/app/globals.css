@@ -1,0 +1,202 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F7F2EA;
+  --foreground: #1A1A1A;
+  --beige: #EFE7DB;
+  --gold: #C8A96B;
+  --secondary-text: #6D6D6D;
+  --border-color: #E5D8C5;
+  --gold-muted: rgba(200, 169, 107, 0.3);
+  --gold-glow: rgba(200, 169, 107, 0.15);
+  
+  --font-serif: var(--font-cormorant), var(--font-playfair), serif;
+  --font-sans: var(--font-inter), sans-serif;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Luxury Thin Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--beige);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brown);
+}
+
+/* Lenis Smooth Scroll Configuration */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overflow: clip;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* Glassmorphism Classes for Light Theme */
+.glass-panel {
+  background: rgba(247, 242, 234, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(92, 68, 53, 0.08);
+}
+
+.glass-panel-gold {
+  background: rgba(239, 231, 219, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(200, 169, 107, 0.25);
+}
+
+/* Premium Metallic Gradients */
+.gold-text-gradient {
+  background: linear-gradient(135deg, #1A1A1A 0%, var(--gold) 60%, var(--gold-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-bg-gradient {
+  background: linear-gradient(135deg, #EFE7DB 0%, var(--gold) 50%, #1A1A1A 100%);
+}
+
+/* Luxury Layout Utilities */
+.font-editorial {
+  font-family: var(--font-serif);
+}
+
+.glow-effect {
+  box-shadow: 0 0 30px var(--gold-glow);
+}
+
+.glow-border:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 15px var(--gold-glow);
+  transition: all 0.5s ease;
+}
+
+/* Animated Underlines */
+.hover-underline-gold {
+  position: relative;
+}
+.hover-underline-gold::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1px;
+  bottom: -4px;
+  left: 0;
+  background-color: var(--gold);
+  transform-origin: bottom right;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.hover-underline-gold:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+/* Custom Cursor styles */
+.custom-cursor {
+  width: 8px;
+  height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+  transition: width 0.2s, height 0.2s, background 0.2s;
+}
+
+.custom-cursor-ring {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--gold-muted);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: transform 0.08s ease-out, width 0.3s, height 0.3s, border-color 0.3s;
+}
+
+.custom-cursor-hover {
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+}
+
+.custom-cursor-ring-hover {
+  width: 60px;
+  height: 60px;
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Pinterest Masonry Columns styling */
+.masonry-grid {
+  display: flex;
+  width: auto;
+}
+.masonry-column {
+  background-clip: padding-box;
+}
+
+/* Keyframe animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Three.js Canvas Container */
+.canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Soundwave Animation */
+@keyframes soundwave {
+  0%, 100% { transform: scaleY(0.2); }
+  50% { transform: scaleY(1); }
+}
+
+.soundwave-bar {
+  display: inline-block;
+  width: 3px;
+  height: 24px;
+  background-color: var(--gold);
+  animation: soundwave 1.2s ease-in-out infinite;
+  transform-origin: bottom;
+}

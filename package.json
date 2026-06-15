@@ -1,0 +1,14 @@
+{
+  "name": "shutter-stories",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
