@@ -169,7 +169,7 @@ export default function Home() {
               EDITORIAL WEDDING & CINEMATIC FILMS
             </span>
             
-            <h1 className="font-editorial text-4xl sm:text-7xl lg:text-[100px] xl:text-[120px] font-bold tracking-tight text-[#1A1A1A] leading-[1.0] uppercase">
+            <h1 className="font-editorial text-3xl sm:text-6xl md:text-7xl lg:text-[100px] xl:text-[120px] font-bold tracking-tight text-[#1A1A1A] leading-[1.0] uppercase">
               CAPTURING MOMENTS.<br />
               <span className="text-[#C8A96B] font-editorial italic font-normal tracking-wide lowercase block mt-1">
                 creating legacies.
@@ -201,7 +201,7 @@ export default function Home() {
         <div className="relative z-20 lg:col-span-5 h-full hidden lg:flex items-center justify-center pr-12">
           <div className="relative w-full aspect-[4/5] max-w-md overflow-hidden rounded-sm border border-[#E5D8C5] shadow-2xl group">
             <img
-              src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800"
+              src="/images/hero_wedding.png"
               alt="Luxury Wedding Portrait"
               className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-103 animate-reveal"
             />
@@ -233,7 +233,7 @@ export default function Home() {
       </section>
 
       {/* SECTION 2: Category Showcase */}
-      <section className="py-32 relative overflow-hidden bg-[#EFE7DB]/30 border-b border-[#E5D8C5]">
+      <section className="py-16 sm:py-24 lg:py-32 relative overflow-hidden bg-[#EFE7DB]/30 border-b border-[#E5D8C5]">
         <div className="text-center mb-20 px-6">
           <span className="text-[10px] uppercase tracking-[0.4em] text-[#C8A96B] font-bold">THE GALLERIES</span>
           <h2 className="font-editorial text-3xl sm:text-5xl font-bold tracking-tight uppercase text-[#1A1A1A] mt-3">
@@ -299,7 +299,7 @@ export default function Home() {
       </section>
 
       {/* SECTION 3: About Story */}
-      <section className="py-32 relative overflow-hidden bg-[#F7F2EA] border-b border-[#E5D8C5]">
+      <section className="py-16 sm:py-24 lg:py-32 relative overflow-hidden bg-[#F7F2EA] border-b border-[#E5D8C5]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             
@@ -347,7 +347,7 @@ export default function Home() {
             <div className="border border-[#E5D8C5] p-3 bg-[#EFE7DB]/40 rounded-sm shadow-xl transition-all duration-700 hover:shadow-2xl">
               <div className="relative group aspect-[4/5] overflow-hidden rounded-sm shadow-inner">
                 <img
-                  src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800"
+                  src="/images/about_bts.png"
                   alt="Behind The Scenes Filmmaking"
                   className="w-full h-full object-cover grayscale opacity-90 group-hover:scale-102 group-hover:grayscale-0 transition-all duration-1000"
                 />
@@ -360,7 +360,7 @@ export default function Home() {
       </section>
 
       {/* SECTION 4: Featured Films */}
-      <section className="py-32 relative overflow-hidden bg-[#EFE7DB]/30 border-b border-[#E5D8C5]">
+      <section className="py-16 sm:py-24 lg:py-32 relative overflow-hidden bg-[#EFE7DB]/30 border-b border-[#E5D8C5]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-end justify-between mb-16 gap-4">
             <div>
@@ -398,7 +398,7 @@ export default function Home() {
                     video.currentTime = 0;
                   }
                 }}
-                className="w-[320px] sm:w-[480px] shrink-0 snap-start group cursor-pointer relative aspect-video overflow-hidden rounded-sm border border-[#E5D8C5] bg-neutral-950 shadow-lg hover:border-[#C8A96B] hover:shadow-[0_0_25px_rgba(200,169,107,0.35)] transition-all duration-500"
+                className="w-[280px] xs:w-[320px] sm:w-[480px] shrink-0 snap-start group cursor-pointer relative aspect-video overflow-hidden rounded-sm border border-[#E5D8C5] bg-neutral-950 shadow-lg hover:border-[#C8A96B] hover:shadow-[0_0_25px_rgba(200,169,107,0.35)] transition-all duration-500"
               >
                 {/* Overlay Vignette */}
                 <div className="absolute inset-0 bg-[#1A1A1A]/40 group-hover:bg-[#1A1A1A]/10 transition-all z-10 duration-500" />
@@ -442,7 +442,7 @@ export default function Home() {
       {/* SECTION 5: Statistics Counter Row */}
       <section className="py-20 relative overflow-hidden bg-[#EFE7DB] border-b border-[#E5D8C5] flex items-center justify-center">
         <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 w-full">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 text-center items-start">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 text-center items-start justify-items-center">
             {[
               { val: '1000+', label: 'Happy Clients', icon: Users },
               { val: '500+', label: 'Weddings Covered', icon: Camera },
@@ -452,7 +452,7 @@ export default function Home() {
             ].map((stat, idx) => {
               const Icon = stat.icon;
               return (
-                <div key={idx} className="flex flex-col items-center gap-2">
+                <div key={idx} className="flex flex-col items-center gap-2 col-span-1 last:col-span-2 sm:last:col-span-1 lg:last:col-span-1">
                   <div className="h-10 w-10 bg-[#F7F2EA]/80 border border-[#C8A96B]/20 rounded-full flex items-center justify-center text-[#C8A96B] mb-1 shadow-sm">
                     <Icon className="h-5 w-5" />
                   </div>
@@ -466,7 +466,7 @@ export default function Home() {
       </section>
 
       {/* SECTION 6: Testimonials */}
-      <section className="py-32 relative overflow-hidden border-b border-[#E5D8C5] bg-[#F7F2EA]">
+      <section className="py-16 sm:py-24 lg:py-32 relative overflow-hidden border-b border-[#E5D8C5] bg-[#F7F2EA]">
         <div className="text-center mb-20 px-6">
           <span className="text-[10px] uppercase tracking-[0.4em] text-[#C8A96B] font-bold">KIND WORDS</span>
           <h2 className="font-editorial text-3xl sm:text-5xl font-bold tracking-tight uppercase text-[#1A1A1A] mt-3">
@@ -526,7 +526,7 @@ export default function Home() {
       </section>
 
       {/* SECTION 7: Instagram Gallery */}
-      <section className="py-32 relative overflow-hidden border-b border-[#E5D8C5] bg-[#EFE7DB]/30">
+      <section className="py-16 sm:py-24 lg:py-32 relative overflow-hidden border-b border-[#E5D8C5] bg-[#EFE7DB]/30">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div>
             <span className="text-[10px] uppercase tracking-[0.4em] text-[#C8A96B] font-bold block mb-2">VOGUE DIARIES</span>
@@ -572,11 +572,11 @@ export default function Home() {
       </section>
 
       {/* SECTION 8: Booking Experience */}
-      <section id="booking-section" className="relative py-40 overflow-hidden flex items-center justify-center bg-stone-900">
+      <section id="booking-section" className="relative py-20 sm:py-28 lg:py-36 overflow-hidden flex items-center justify-center bg-stone-900">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1519741497674-611481863552?w=1600"
+            src="/images/booking_bg.png"
             alt="Luxury Wedding Venue"
             className="w-full h-full object-cover opacity-20 grayscale"
           />

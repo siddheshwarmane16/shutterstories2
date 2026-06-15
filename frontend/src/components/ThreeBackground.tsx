@@ -48,7 +48,7 @@ export default function ThreeBackground() {
     const particles = new THREE.Points(geometry, material);
     scene.add(particles);
 
-    // Mouse positions
+    // Mouse and Touch positions
     let mouseX = 0;
     let mouseY = 0;
     let targetX = 0;
@@ -59,7 +59,16 @@ export default function ThreeBackground() {
       mouseY = (e.clientY - window.innerHeight / 2) / 100;
     };
 
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        mouseX = (e.touches[0].clientX - window.innerWidth / 2) / 100;
+        mouseY = (e.touches[0].clientY - window.innerHeight / 2) / 100;
+      }
+    };
+
     window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchstart', handleTouchMove, { passive: true });
 
     const handleResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
@@ -71,18 +80,37 @@ export default function ThreeBackground() {
 
     // Render loop
     let animationId: number;
+    let time = 0;
+
     const animate = () => {
+      time += 0.005;
       targetX += (mouseX - targetX) * 0.05;
       targetY += (mouseY - targetY) * 0.05;
 
       particles.rotation.y = targetX * 0.15;
       particles.rotation.x = -targetY * 0.15;
 
+      // Breathe material opacity
+      material.opacity = 0.25 + Math.sin(time * 2) * 0.1;
+
       const positionsArr = particles.geometry.attributes.position.array as Float32Array;
-      for (let i = 1; i < positionsArr.length; i += 3) {
-        positionsArr[i] += speeds[Math.floor(i / 3)] * 0.1;
-        if (positionsArr[i] > 6) {
-          positionsArr[i] = -6;
+      for (let i = 0; i < positionsArr.length; i += 3) {
+        const index = i / 3;
+        const speed = speeds[index];
+        
+        // Gentle side-to-side wavy drift
+        positionsArr[i] += Math.sin(time + index) * 0.004;
+        
+        // Upward drifting motion
+        positionsArr[i + 1] += speed * 0.15;
+        
+        // Small depth drift
+        positionsArr[i + 2] += Math.cos(time + index) * 0.002;
+
+        if (positionsArr[i + 1] > 6) {
+          positionsArr[i + 1] = -6;
+          positionsArr[i] = (Math.random() - 0.5) * 12;
+          positionsArr[i + 2] = (Math.random() - 0.5) * 8;
         }
       }
       particles.geometry.attributes.position.needsUpdate = true;
@@ -95,6 +123,8 @@ export default function ThreeBackground() {
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchstart', handleTouchMove);
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationId);
       if (container.contains(renderer.domElement)) {

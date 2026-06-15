@@ -120,7 +120,7 @@ export default function Header() {
 
       {/* Mobile Nav Overlay Drawer */}
       <div
-        className={`fixed inset-0 top-[64px] z-40 bg-[#F7F2EA] border-t border-[#E5D8C5] transition-transform duration-500 xl:hidden ${
+        className={`fixed inset-0 top-[64px] z-40 bg-[#F7F2EA] border-t border-[#E5D8C5] transition-transform duration-500 xl:hidden overflow-y-auto max-h-[calc(100vh-64px)] pb-12 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
